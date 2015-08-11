@@ -1,6 +1,21 @@
 package ca.hoogit.hooold;
 
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
+import android.view.View;
+import android.widget.Toast;
+
+import butterknife.Bind;
+import butterknife.OnClick;
+
 public class MainActivity extends BaseActivity {
+
+    @Bind(R.id.viewpager) ViewPager mPager;
+    @Bind(R.id.tabs) TabLayout mTabs;
+    @Bind(R.id.fab) FloatingActionButton mNewMessage;
 
     @Override
     protected int getToolbarColor() {
@@ -20,5 +35,25 @@ public class MainActivity extends BaseActivity {
     @Override
     protected boolean getDisplayHomeAsUpEnabled() {
         return false;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setUpViews();
+    }
+
+    private void setUpViews() {
+        if (mPager.getAdapter() == null) {
+            FragmentAdapter adapter = new FragmentAdapter(this, getSupportFragmentManager());
+            mPager.setAdapter(adapter);
+        }
+        mTabs.setupWithViewPager(mPager);
+    }
+
+    @OnClick(R.id.fab)
+    public void onClick(View view) {
+        Snackbar.make(mPager, "Hello button", Snackbar.LENGTH_SHORT).show();
     }
 }
