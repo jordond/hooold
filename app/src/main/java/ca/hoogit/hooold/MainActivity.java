@@ -4,9 +4,12 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Toast;
+
+import java.util.Date;
 
 import butterknife.Bind;
 import butterknife.OnClick;
@@ -54,6 +57,14 @@ public class MainActivity extends BaseActivity {
 
     @OnClick(R.id.fab)
     public void onClick(View view) {
+        Message test = new Message(new Date(), new Date(), "Jordon");
+        test.setType(Consts.MESSAGE_TYPE_SCHEDULED);
+        test.setMessage("BLAH");
+        Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" +
+                R.id.viewpager + ":" + mPager.getCurrentItem());
+        if (mPager.getCurrentItem() == 0 && page != null) {
+            ((MessageFragment)page).add(test);
+        }
         Snackbar.make(mPager, "Hello button", Snackbar.LENGTH_SHORT).show();
     }
 }

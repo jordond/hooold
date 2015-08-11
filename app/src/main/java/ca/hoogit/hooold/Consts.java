@@ -17,11 +17,6 @@
  */
 package ca.hoogit.hooold;
 
-import android.content.Context;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-
 /**
  * @author jordon
  *
@@ -29,31 +24,8 @@ import android.support.v4.app.FragmentPagerAdapter;
  * Description
  *
  */
-public class FragmentAdapter extends FragmentPagerAdapter {
-
-    private String[] mTitles;
-
-    public FragmentAdapter(Context context, FragmentManager fragmentManager) {
-        super(fragmentManager);
-        mTitles = context.getResources().getStringArray(R.array.tabs);
-    }
-
-    @Override
-    public Fragment getItem(int position) {
-        if (position < mTitles.length) {
-            return MessageFragment.newInstance(position, "Test " + position);
-        }
-        return null;
-    }
-
-    @Override
-    public CharSequence getPageTitle(int position) {
-        return mTitles[position];
-    }
-
-    @Override
-    public int getCount() {
-        return mTitles.length;
-    }
-
+public class Consts {
+    public static final int MESSAGE_TYPE_ALL = -1;
+    public static final int MESSAGE_TYPE_SCHEDULED = 0;
+    public static final int MESSAGE_TYPE_RECENT = 1;
 }

@@ -17,10 +17,10 @@
  */
 package ca.hoogit.hooold;
 
-import android.content.Context;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.app.Application;
+
+import com.orm.SugarContext;
+import com.orm.SugarDb;
 
 /**
  * @author jordon
@@ -29,31 +29,16 @@ import android.support.v4.app.FragmentPagerAdapter;
  * Description
  *
  */
-public class FragmentAdapter extends FragmentPagerAdapter {
-
-    private String[] mTitles;
-
-    public FragmentAdapter(Context context, FragmentManager fragmentManager) {
-        super(fragmentManager);
-        mTitles = context.getResources().getStringArray(R.array.tabs);
+public class HoooldApp extends Application {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        SugarContext.init(this);
     }
 
     @Override
-    public Fragment getItem(int position) {
-        if (position < mTitles.length) {
-            return MessageFragment.newInstance(position, "Test " + position);
-        }
-        return null;
+    public void onTerminate() {
+        super.onTerminate();
+        SugarContext.terminate();
     }
-
-    @Override
-    public CharSequence getPageTitle(int position) {
-        return mTitles[position];
-    }
-
-    @Override
-    public int getCount() {
-        return mTitles.length;
-    }
-
 }

@@ -40,26 +40,69 @@ import java.util.Locale;
  */
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
-    private List<Message> mMessages;
+    private ArrayList<Message> mMessages;
     private SimpleDateFormat mSimpleDateFormat;
     private Context mContext;
+    private int mType;
 
-    public MessageAdapter(Context context) {
+    public MessageAdapter(Context context, int type) {
         mContext = context;
-        updateList();
+        mType = type;
+        mMessages = new ArrayList<>();
         mSimpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy (EEEE)", Locale.getDefault());
     }
 
-    public boolean updateList() {
-        //TODO get messages from database
-        mMessages = new ArrayList<>();
-        mMessages.add(new Message(new Date(), new Date(), "TEST1 MESSAGE"));
+    public ArrayList<Message> getList() {
+        if (mMessages != null) {
+            if (mMessages.isEmpty()) {
+                mMessages = new ArrayList<>();
+            }
+        }
+        return mMessages;
+    }
 
-        if (getItemCount() == 0) {
-            return false;
+    public boolean update(ArrayList<Message> messages) {
+        if (messages == null || messages.isEmpty()) {
+            mMessages = new ArrayList<>();
+            mMessages = Message.all(mType);
         } else {
+            mMessages = messages;
+        }
+        if (getItemCount() != 0) {
             notifyDataSetChanged();
             return true;
+        }
+        return false;
+    }
+
+    public boolean update() {
+        mMessages = Message.all(mType);
+        if (getItemCount() != 0) {
+            notifyDataSetChanged();
+            return true;
+        }
+        return false;
+    }
+
+    public void swap(ArrayList<Message> list) {
+        mMessages.clear();
+        mMessages.addAll(list);
+        notifyDataSetChanged();
+    }
+
+    public void add(Message message) {
+        if (message != null) {
+            message.save();
+            mMessages.add(message);
+            notifyDataSetChanged();
+        }
+    }
+
+    public void remove(Message message) {
+        if (message != null) {
+            message.delete();
+            mMessages.remove(message);
+            notifyDataSetChanged();
         }
     }
 

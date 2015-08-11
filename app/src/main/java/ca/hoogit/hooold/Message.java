@@ -17,7 +17,17 @@
  */
 package ca.hoogit.hooold;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
+import com.orm.dsl.Table;
+
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author jordon
@@ -26,11 +36,13 @@ import java.util.Date;
  * Description
  *
  */
-public class Message {
+@Table
+public class Message extends SugarRecord implements Parcelable {
 
     private Date created;
     private Date scheduleDate;
     private boolean repeat;
+    private int type;
     private String contact;
     private String message;
 
@@ -42,6 +54,28 @@ public class Message {
         this.created = created;
         this.scheduleDate = scheduleDate;
         this.contact = contact;
+    }
+
+    /**
+     * DB Methods
+     */
+
+    public static ArrayList<Message> all() {
+        List<Message> list = Message.listAll(Message.class);
+        return new ArrayList<>(list);
+    }
+
+    public static ArrayList<Message> all(int type) {
+        if (type == Consts.MESSAGE_TYPE_ALL) {
+            return all();
+        }
+        ArrayList<Message> sorted = new ArrayList<>();
+        for (Message message : Message.listAll(Message.class)) {
+            if (message.getType() == type) {
+                sorted.add(message);
+            }
+        }
+        return sorted;
     }
 
     public Date getCreated() {
@@ -83,4 +117,53 @@ public class Message {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    /**
+     * Parcelable - created with http://www.parcelabler.com/
+     */
+
+    protected Message(Parcel in) {
+        long tmpCreated = in.readLong();
+        created = tmpCreated != -1 ? new Date(tmpCreated) : null;
+        long tmpScheduleDate = in.readLong();
+        scheduleDate = tmpScheduleDate != -1 ? new Date(tmpScheduleDate) : null;
+        repeat = in.readByte() != 0x00;
+        contact = in.readString();
+        message = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(created != null ? created.getTime() : -1L);
+        dest.writeLong(scheduleDate != null ? scheduleDate.getTime() : -1L);
+        dest.writeByte((byte) (repeat ? 0x01 : 0x00));
+        dest.writeString(contact);
+        dest.writeString(message);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Message> CREATOR = new Parcelable.Creator<Message>() {
+        @Override
+        public Message createFromParcel(Parcel in) {
+            return new Message(in);
+        }
+
+        @Override
+        public Message[] newArray(int size) {
+            return new Message[size];
+        }
+    };
 }
