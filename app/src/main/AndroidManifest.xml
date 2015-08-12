@@ -22,8 +22,8 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="894d182b0e0c98734be894889a1e2b0bf7e4a957" />
-        <meta-data android:name="DATABASE" android:value="hooold_debug.db" />
-        <meta-data android:name="VERSION" android:value="1" />
+        <meta-data android:name="DATABASE" android:value="hooold_debug2.db" />
+        <meta-data android:name="VERSION" android:value="3" />
         <meta-data android:name="QUERY_LOG" android:value="true" />
         <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="ca.hoogit" />
     </application>
