@@ -15,19 +15,20 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-package ca.hoogit.hooold;
+package ca.hoogit.hooold.Message;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.orm.SugarRecord;
-import com.orm.dsl.Ignore;
 import com.orm.dsl.Table;
 
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import ca.hoogit.hooold.Utils.Consts;
 
 /**
  * @author jordon
@@ -37,7 +38,7 @@ import java.util.List;
  *
  */
 @Table
-public class Message extends SugarRecord implements Parcelable {
+public class Message extends SugarRecord implements Parcelable, Comparable<Message> {
 
     private Date created;
     private Date scheduleDate;
@@ -75,8 +76,12 @@ public class Message extends SugarRecord implements Parcelable {
                 sorted.add(message);
             }
         }
+        Collections.sort(sorted);
+        Collections.reverse(sorted);
         return sorted;
     }
+
+
 
     public Date getCreated() {
         return created;
@@ -166,4 +171,9 @@ public class Message extends SugarRecord implements Parcelable {
             return new Message[size];
         }
     };
+
+    @Override
+    public int compareTo(Message another) {
+        return getScheduleDate().compareTo(another.getScheduleDate());
+    }
 }

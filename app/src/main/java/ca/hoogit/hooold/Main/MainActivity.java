@@ -1,18 +1,25 @@
-package ca.hoogit.hooold;
+package ca.hoogit.hooold.Main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import java.util.Date;
 
 import butterknife.Bind;
 import butterknife.OnClick;
+import ca.hoogit.hooold.About.AboutActivity;
+import ca.hoogit.hooold.BaseActivity;
+import ca.hoogit.hooold.Message.Message;
+import ca.hoogit.hooold.Message.MessageFragment;
+import ca.hoogit.hooold.R;
+import ca.hoogit.hooold.Utils.Consts;
 
 public class MainActivity extends BaseActivity {
 
@@ -41,6 +48,19 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_about:
+                startActivity(new Intent(this, AboutActivity.class));
+                return true;
+            case android.R.id.home:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -57,14 +77,14 @@ public class MainActivity extends BaseActivity {
 
     @OnClick(R.id.fab)
     public void onClick(View view) {
-        Message test = new Message(new Date(), new Date(), "Jordon");
+        Message test = new Message(new Date(), new Date(), "Jordon DaHoooog");
         test.setType(Consts.MESSAGE_TYPE_SCHEDULED);
-        test.setMessage("BLAH");
+        test.setMessage("Hello you forgot to pay child support this month, also happy birthday");
+        test.setRepeat(false);
         Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" +
                 R.id.viewpager + ":" + mPager.getCurrentItem());
         if (mPager.getCurrentItem() == 0 && page != null) {
             ((MessageFragment)page).add(test);
         }
-        Snackbar.make(mPager, "Hello button", Snackbar.LENGTH_SHORT).show();
     }
 }

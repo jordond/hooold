@@ -1,4 +1,4 @@
-package ca.hoogit.hooold;
+package ca.hoogit.hooold.Message;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import ca.hoogit.hooold.R;
 
 public class MessageFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
@@ -88,7 +89,10 @@ public class MessageFragment extends Fragment {
         mAdapter = new MessageAdapter(getActivity(), mType);
 
         mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        DefaultItemAnimator animator = new DefaultItemAnimator();
+        animator.setAddDuration(1000);
+        animator.setRemoveDuration(1000);
+        mRecyclerView.setItemAnimator(animator);
         mRecyclerView.setAdapter(mAdapter);
 
         mMessages = new ArrayList<>();
@@ -97,7 +101,12 @@ public class MessageFragment extends Fragment {
     }
 
     private void setupList() {
-        if (mAdapter.update(mMessages)) {
+        boolean toggle = mAdapter.update(mMessages);
+        toggleViews(toggle);
+    }
+
+    private void toggleViews(boolean toggle) {
+        if (toggle) {
             mRecyclerView.setVisibility(View.VISIBLE);
             mEmptyListView.setVisibility(View.GONE);
         } else {
@@ -108,7 +117,10 @@ public class MessageFragment extends Fragment {
 
     public void add(Message message) {
         if (mAdapter != null) {
-            mAdapter.add(message);
+            int position = mAdapter.add(message);
+            mRecyclerView.scrollToPosition(position);
+            toggleViews(true);
+
         }
     }
 }
