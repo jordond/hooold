@@ -66,6 +66,5 @@ public class MainActivity extends BaseActivity {
         if (mPager.getCurrentItem() == 0 && page != null) {
             ((MessageFragment)page).add(test);
         }
-        Snackbar.make(mPager, "Hello button", Snackbar.LENGTH_SHORT).show();
     }
 }

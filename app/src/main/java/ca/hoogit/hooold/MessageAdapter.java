@@ -19,27 +19,31 @@ package ca.hoogit.hooold;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 /**
  * @author jordon
- *
- * Date    11/08/15
- * Description
- *
+ *         <p/>
+ *         Date    11/08/15
+ *         Description
  */
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
     private ArrayList<Message> mMessages;
     private Context mContext;
+    private View mView;
     private int mType;
 
     private ArrayList<Integer> mUnusedColors;
@@ -113,40 +117,30 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         return position;
     }
 
-    public void remove(Message message) {
+    public void delete(int position) {
+        Message message = mMessages.get(position);
         if (message != null) {
-            int position = mMessages.indexOf(message);
-            if (position != -1) {
-                message.delete();
-                mMessages.remove(message);
-                notifyItemRemoved(mMessages.indexOf(message));
-            }
+            message.delete();
+            mMessages.remove(position);
+            notifyItemRemoved(position);
         }
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
+        int layoutId = R.layout.item_message_scheduled;
         if (mType == Consts.MESSAGE_TYPE_RECENT) {
-            return new ViewHolder(inflater.inflate(R.layout.item_message_recent, parent, false));
-        } else if (mType == Consts.MESSAGE_TYPE_SCHEDULED) {
-            return new ViewHolder(inflater.inflate(R.layout.item_message_scheduled, parent, false));
+            layoutId = R.layout.item_message_recent;
         }
-        return null;
+        mView = inflater.inflate(layoutId, parent, false);
+        return new ViewHolder(mView);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Message message = mMessages.get(position);
 
-        if (mType == Consts.MESSAGE_TYPE_RECENT) {
-            bindRecentHolder(holder, message);
-        } else if (mType == Consts.MESSAGE_TYPE_SCHEDULED) {
-            bindScheduledHolder(holder, message);
-        }
-    }
-
-    public void bindScheduledHolder(ViewHolder holder, Message message) {
         holder.contact.setText(message.getContact());
         holder.date.setText(HoooldUtils.toListDate(message.getScheduleDate()));
         holder.message.setText(message.getMessage());
@@ -160,12 +154,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             mUsedColors.clear();
         }
 
-        GradientDrawable backgroundGradient = (GradientDrawable)holder.icon.getBackground();
+        GradientDrawable backgroundGradient = (GradientDrawable) holder.icon.getBackground();
         backgroundGradient.setColor(color);
-    }
-
-    public void bindRecentHolder(ViewHolder holder, Message message) {
-
     }
 
     @Override
@@ -173,10 +163,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         return mMessages.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView icon;
         TextView contact, date, message;
+        Button edit, delete;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -184,6 +175,52 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             contact = (TextView) itemView.findViewById(R.id.contact);
             date = (TextView) itemView.findViewById(R.id.date);
             message = (TextView) itemView.findViewById(R.id.message);
+            if (mType == Consts.MESSAGE_TYPE_SCHEDULED) {
+                edit = (Button) itemView.findViewById(R.id.edit);
+                delete = (Button) itemView.findViewById(R.id.delete);
+
+                edit.setOnClickListener(this);
+                delete.setOnClickListener(this);
+            }
+        }
+
+        @Override
+        public void onClick(View v) {
+            final int position = getAdapterPosition();
+            switch (v.getId()) {
+                case R.id.edit:
+                    break;
+                case R.id.delete:
+                    new MaterialDialog.Builder(mContext)
+                            .title(R.string.message_delete_title)
+                            .content(R.string.message_delete_content)
+                            .positiveText(R.string.message_delete_positive)
+                            .negativeText(R.string.message_delete_negative)
+                            .autoDismiss(true)
+                            .callback(new MaterialDialog.ButtonCallback() {
+                                @Override
+                                public void onPositive(MaterialDialog dialog) {
+                                    super.onPositive(dialog);
+                                    final Message message = mMessages.get(position);
+                                    delete(position);
+                                    Snackbar.make(mView, mContext.getString(R.string.message_delete_snackbar_text), Snackbar.LENGTH_LONG)
+                                            .setAction(R.string.snackbar_undo,
+                                                    new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View v) {
+                                                            add(message);
+                                                        }
+                                                    }).show();
+                                }
+
+                                @Override
+                                public void onNegative(MaterialDialog dialog) {
+                                    super.onNegative(dialog);
+                                    dialog.dismiss();
+                                }
+                            }).show();
+                    break;
+            }
         }
     }
 }

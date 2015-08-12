@@ -7,4 +7,10 @@
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="lorem_ipsum_50">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam dictum mi in pretium ultricies. Suspendisse potenti. Sed semper ornare eros sit amet venenatis. In suscipit lacus augue, in varius leo iaculis sit amet. Curabitur ac urna et libero malesuada pellentesque.</string>
+    <string name="message_delete_content">This message will be deleted and will no be longer delivered at it\'s set time.  Is this what you really want to do?</string>
+    <string name="message_delete_title">Are you sure?</string>
+    <string name="message_delete_positive">Yes</string>
+    <string name="message_delete_negative">No</string>
+    <string name="message_delete_snackbar_text">Message was deleted</string>
+    <string name="snackbar_undo">UNDO</string>
 </resources>
