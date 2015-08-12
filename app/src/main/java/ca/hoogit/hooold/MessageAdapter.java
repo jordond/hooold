@@ -19,7 +19,6 @@ package ca.hoogit.hooold;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,15 +26,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.common.primitives.Ints;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.Collections;
 
 /**
  * @author jordon
@@ -108,12 +100,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         notifyDataSetChanged();
     }
 
-    public void add(Message message) {
+    public int add(Message message) {
+        int position = 0;
         if (message != null) {
             message.save();
             mMessages.add(message);
-            notifyItemInserted(mMessages.size());
+            Collections.sort(mMessages);
+            Collections.reverse(mMessages);
+            position = mMessages.indexOf(message);
+            notifyItemInserted(position);
         }
+        return position;
     }
 
     public void remove(Message message) {
@@ -130,14 +127,26 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.item_message, parent, false);
-        return new ViewHolder(view);
+        if (mType == Consts.MESSAGE_TYPE_RECENT) {
+            return new ViewHolder(inflater.inflate(R.layout.item_message_recent, parent, false));
+        } else if (mType == Consts.MESSAGE_TYPE_SCHEDULED) {
+            return new ViewHolder(inflater.inflate(R.layout.item_message_scheduled, parent, false));
+        }
+        return null;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Message message = mMessages.get(position);
 
+        if (mType == Consts.MESSAGE_TYPE_RECENT) {
+            bindRecentHolder(holder, message);
+        } else if (mType == Consts.MESSAGE_TYPE_SCHEDULED) {
+            bindScheduledHolder(holder, message);
+        }
+    }
+
+    public void bindScheduledHolder(ViewHolder holder, Message message) {
         holder.contact.setText(message.getContact());
         holder.date.setText(HoooldUtils.toListDate(message.getScheduleDate()));
         holder.message.setText(message.getMessage());
@@ -153,6 +162,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
         GradientDrawable backgroundGradient = (GradientDrawable)holder.icon.getBackground();
         backgroundGradient.setColor(color);
+    }
+
+    public void bindRecentHolder(ViewHolder holder, Message message) {
+
     }
 
     @Override

@@ -116,8 +116,10 @@ public class MessageFragment extends Fragment {
 
     public void add(Message message) {
         if (mAdapter != null) {
-            mAdapter.add(message);
+            int position = mAdapter.add(message);
+            mRecyclerView.scrollToPosition(position);
             toggleViews(true);
+
         }
     }
 }

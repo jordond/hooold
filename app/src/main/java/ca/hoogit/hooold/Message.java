@@ -26,6 +26,7 @@ import com.orm.dsl.Table;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -37,7 +38,7 @@ import java.util.List;
  *
  */
 @Table
-public class Message extends SugarRecord implements Parcelable {
+public class Message extends SugarRecord implements Parcelable, Comparable<Message> {
 
     private Date created;
     private Date scheduleDate;
@@ -75,8 +76,12 @@ public class Message extends SugarRecord implements Parcelable {
                 sorted.add(message);
             }
         }
+        Collections.sort(sorted);
+        Collections.reverse(sorted);
         return sorted;
     }
+
+
 
     public Date getCreated() {
         return created;
@@ -166,4 +171,9 @@ public class Message extends SugarRecord implements Parcelable {
             return new Message[size];
         }
     };
+
+    @Override
+    public int compareTo(Message another) {
+        return getScheduleDate().compareTo(another.getScheduleDate());
+    }
 }
