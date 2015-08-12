@@ -57,9 +57,10 @@ public class MainActivity extends BaseActivity {
 
     @OnClick(R.id.fab)
     public void onClick(View view) {
-        Message test = new Message(new Date(), new Date(), "Jordon");
+        Message test = new Message(new Date(), new Date(), "Jordon DaHoooog");
         test.setType(Consts.MESSAGE_TYPE_SCHEDULED);
-        test.setMessage("BLAH");
+        test.setMessage("Hello you forgot to pay child support this month, also happy birthday");
+        test.setRepeat(false);
         Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" +
                 R.id.viewpager + ":" + mPager.getCurrentItem());
         if (mPager.getCurrentItem() == 0 && page != null) {

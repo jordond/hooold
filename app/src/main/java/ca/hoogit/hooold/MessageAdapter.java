@@ -18,14 +18,20 @@
 package ca.hoogit.hooold;
 
 import android.content.Context;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.common.primitives.Ints;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -41,15 +47,27 @@ import java.util.Locale;
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
     private ArrayList<Message> mMessages;
-    private SimpleDateFormat mSimpleDateFormat;
     private Context mContext;
     private int mType;
+
+    private ArrayList<Integer> mUnusedColors;
+    private ArrayList<Integer> mUsedColors;
 
     public MessageAdapter(Context context, int type) {
         mContext = context;
         mType = type;
+        init();
+    }
+
+    private void init() {
         mMessages = new ArrayList<>();
-        mSimpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy (EEEE)", Locale.getDefault());
+        mUnusedColors = new ArrayList<>();
+        mUsedColors = new ArrayList<>();
+
+        int[] colors = mContext.getResources().getIntArray(R.array.colors);
+        for (int color : colors) {
+            mUnusedColors.add(color);
+        }
     }
 
     public ArrayList<Message> getList() {
@@ -94,15 +112,18 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         if (message != null) {
             message.save();
             mMessages.add(message);
-            notifyDataSetChanged();
+            notifyItemInserted(mMessages.size());
         }
     }
 
     public void remove(Message message) {
         if (message != null) {
-            message.delete();
-            mMessages.remove(message);
-            notifyDataSetChanged();
+            int position = mMessages.indexOf(message);
+            if (position != -1) {
+                message.delete();
+                mMessages.remove(message);
+                notifyItemRemoved(mMessages.indexOf(message));
+            }
         }
     }
 
@@ -118,11 +139,20 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         Message message = mMessages.get(position);
 
         holder.contact.setText(message.getContact());
+        holder.date.setText(HoooldUtils.toListDate(message.getScheduleDate()));
+        holder.message.setText(message.getMessage());
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(message.getScheduleDate());
+        int color = mUnusedColors.get(0);
+        mUsedColors.add(color);
+        mUnusedColors.remove(0);
 
-        //TODO do something with date aka finish the item_message
+        if (mUnusedColors.isEmpty()) {
+            mUnusedColors.addAll(mUsedColors);
+            mUsedColors.clear();
+        }
+
+        GradientDrawable backgroundGradient = (GradientDrawable)holder.icon.getBackground();
+        backgroundGradient.setColor(color);
     }
 
     @Override
@@ -132,12 +162,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView contact;
+        ImageView icon;
+        TextView contact, date, message;
 
         public ViewHolder(View itemView) {
             super(itemView);
+            icon = (ImageView) itemView.findViewById(R.id.icon);
             contact = (TextView) itemView.findViewById(R.id.contact);
-
+            date = (TextView) itemView.findViewById(R.id.date);
+            message = (TextView) itemView.findViewById(R.id.message);
         }
     }
 }
