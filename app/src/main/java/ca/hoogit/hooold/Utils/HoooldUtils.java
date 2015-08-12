@@ -15,7 +15,12 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-package ca.hoogit.hooold;
+package ca.hoogit.hooold.Utils;
+
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -35,5 +40,18 @@ public class HoooldUtils {
     public static String toListDate(Date date) {
         SimpleDateFormat f = new SimpleDateFormat("MMMM dd - h:mm a", Locale.getDefault());
         return f.format(date);
+    }
+
+    public static void rateApp(Context context) {
+        Uri uri = Uri.parse("market://details?id=" + context.getPackageName());
+        Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+        goToMarket.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            context.startActivity(goToMarket);
+        } catch (ActivityNotFoundException e) {
+            context.startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("http://play.google.com/store/apps/details?id=" +
+                            context.getPackageName())));
+        }
     }
 }

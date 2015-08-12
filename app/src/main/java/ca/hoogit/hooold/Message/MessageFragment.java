@@ -1,4 +1,4 @@
-package ca.hoogit.hooold;
+package ca.hoogit.hooold.Message;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import ca.hoogit.hooold.R;
 
 public class MessageFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match

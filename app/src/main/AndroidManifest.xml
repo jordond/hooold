@@ -1,31 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ca.hoogit.hooold">
+    package="ca.hoogit.hooold" >
 
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".HoooldApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:name="ca.hoogit.hooold.HoooldApp">
+        android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:name=".Main.MainActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="894d182b0e0c98734be894889a1e2b0bf7e4a957" />
-        <meta-data android:name="DATABASE" android:value="hooold_debug2.db" />
-        <meta-data android:name="VERSION" android:value="3" />
-        <meta-data android:name="QUERY_LOG" android:value="true" />
-        <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="ca.hoogit" />
+        <meta-data
+            android:name="DATABASE"
+            android:value="hooold_debug2.db" />
+        <meta-data
+            android:name="VERSION"
+            android:value="3" />
+        <meta-data
+            android:name="QUERY_LOG"
+            android:value="true" />
+        <meta-data
+            android:name="DOMAIN_PACKAGE_NAME"
+            android:value="ca.hoogit" />
+
+        <activity
+            android:name=".About.AboutActivity"
+            android:label="@string/title_activity_about"
+            android:parentActivityName=".Main.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.hoogit.hooold.Main.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

@@ -1,18 +1,25 @@
-package ca.hoogit.hooold;
+package ca.hoogit.hooold.Main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import java.util.Date;
 
 import butterknife.Bind;
 import butterknife.OnClick;
+import ca.hoogit.hooold.About.AboutActivity;
+import ca.hoogit.hooold.BaseActivity;
+import ca.hoogit.hooold.Message.Message;
+import ca.hoogit.hooold.Message.MessageFragment;
+import ca.hoogit.hooold.R;
+import ca.hoogit.hooold.Utils.Consts;
 
 public class MainActivity extends BaseActivity {
 
@@ -38,6 +45,19 @@ public class MainActivity extends BaseActivity {
     @Override
     protected boolean getDisplayHomeAsUpEnabled() {
         return false;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_about:
+                startActivity(new Intent(this, AboutActivity.class));
+                return true;
+            case android.R.id.home:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

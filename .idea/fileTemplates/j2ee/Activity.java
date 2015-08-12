@@ -1,5 +1,5 @@
-#parse("Copyright.java")
 package ${PACKAGE_NAME};
+#parse("Copyright.java")
 
 import android.app.Activity;
 import android.os.Bundle;
