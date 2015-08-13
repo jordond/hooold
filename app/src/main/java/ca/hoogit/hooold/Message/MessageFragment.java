@@ -15,30 +15,22 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import ca.hoogit.hooold.R;
+import ca.hoogit.hooold.Utils.Consts;
 
 public class MessageFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    private static final String ARG_TYPE = "type";
-    private static final String ARG_PARAM2 = "param2";
-
-    private static final String KEY_MESSAGES = "MESSAGES";
-
-    // TODO: Rename and change types of parameters
-    private int mType;
-    private String mParam2;
 
     @Bind(R.id.recycler) RecyclerView mRecyclerView;
     @Bind(R.id.empty_list) TextView mEmptyListView;
 
-    private MessageAdapter mAdapter;
-    private ArrayList<Message> mMessages; // Saved and restored, so db call not needed on config change
+    private int mType;
 
-    // TODO rename
-    public static MessageFragment newInstance(int type, String param2) {
+    private MessageAdapter mAdapter;
+    private ArrayList<Message> mMessages;
+
+    public static MessageFragment newInstance(int type) {
         MessageFragment fragment = new MessageFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_TYPE, type);
-        args.putString(ARG_PARAM2, param2);
+        args.putInt(Consts.ARG_TYPE, type);
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,8 +42,7 @@ public class MessageFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mType = getArguments().getInt(ARG_TYPE);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            mType = getArguments().getInt(Consts.ARG_TYPE);
         }
     }
 
@@ -62,14 +53,14 @@ public class MessageFragment extends Fragment {
             if (mMessages != null && mMessages.isEmpty())
             mMessages = mAdapter.getList();
         }
-        outState.putParcelableArrayList(KEY_MESSAGES, mMessages);
+        outState.putParcelableArrayList(Consts.KEY_MESSAGES, mMessages);
     }
 
     @Override
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState != null) {
-            mMessages = savedInstanceState.getParcelableArrayList(KEY_MESSAGES); // TODO Make sure its working may have to do work in mainActivity
+            mMessages = savedInstanceState.getParcelableArrayList(Consts.KEY_MESSAGES);
         }
     }
 
@@ -90,8 +81,8 @@ public class MessageFragment extends Fragment {
 
         mRecyclerView.setLayoutManager(layoutManager);
         DefaultItemAnimator animator = new DefaultItemAnimator();
-        animator.setAddDuration(1000);
-        animator.setRemoveDuration(1000);
+        animator.setAddDuration(Consts.ANIMATION_LIST_ITEM_DELAY);
+        animator.setRemoveDuration(Consts.ANIMATION_LIST_ITEM_DELAY);
         mRecyclerView.setItemAnimator(animator);
         mRecyclerView.setAdapter(mAdapter);
 

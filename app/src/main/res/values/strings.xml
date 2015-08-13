@@ -23,4 +23,6 @@
     <string name="source_code_url">http://github.com/jordond/powerhour</string>
     <string name="developer_url">http://github.com/jordond</string>
     <string name="action_help">Help</string>
+    <string name="title_activity_create">Create Message</string>
+    <string name="action_create">Create</string>
 </resources>

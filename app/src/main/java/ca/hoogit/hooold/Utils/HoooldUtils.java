@@ -37,6 +37,8 @@ import java.util.Locale;
  */
 public class HoooldUtils {
 
+    private static final String TAG = HoooldUtils.class.getSimpleName();
+
     public static String toListDate(Date date) {
         SimpleDateFormat f = new SimpleDateFormat("MMMM dd - h:mm a", Locale.getDefault());
         return f.format(date);

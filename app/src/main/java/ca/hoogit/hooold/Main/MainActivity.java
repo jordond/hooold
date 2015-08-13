@@ -2,15 +2,12 @@ package ca.hoogit.hooold.Main;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.view.Menu;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-
-import java.util.Date;
 
 import butterknife.Bind;
 import butterknife.OnClick;
@@ -19,13 +16,15 @@ import ca.hoogit.hooold.BaseActivity;
 import ca.hoogit.hooold.Message.Message;
 import ca.hoogit.hooold.Message.MessageFragment;
 import ca.hoogit.hooold.R;
+import ca.hoogit.hooold.Scheduling.CreateActivity;
 import ca.hoogit.hooold.Utils.Consts;
 
 public class MainActivity extends BaseActivity {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+
     @Bind(R.id.viewpager) ViewPager mPager;
     @Bind(R.id.tabs) TabLayout mTabs;
-    @Bind(R.id.fab) FloatingActionButton mNewMessage;
 
     @Override
     protected int getToolbarColor() {
@@ -77,14 +76,31 @@ public class MainActivity extends BaseActivity {
 
     @OnClick(R.id.fab)
     public void onClick(View view) {
-        Message test = new Message(new Date(), new Date(), "Jordon DaHoooog");
-        test.setType(Consts.MESSAGE_TYPE_SCHEDULED);
-        test.setMessage("Hello you forgot to pay child support this month, also happy birthday");
-        test.setRepeat(false);
+        Intent createIntent = new Intent(this, CreateActivity.class);
+        createIntent.setAction(Consts.MESSAGE_CREATE);
+        startActivityForResult(createIntent, Consts.RESULT_MESSAGE_CREATE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case Consts.RESULT_MESSAGE_CREATE:
+                    Log.d(TAG, "Message created resulted received");
+                    Message message = data.getParcelableExtra(Consts.KEY_MESSAGE);
+                    addMessage(message);
+                    break;
+            }
+        } else {
+            Log.e(TAG, "Activity result failed");
+        }
+    }
+
+    private void addMessage(Message message) {
         Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" +
                 R.id.viewpager + ":" + mPager.getCurrentItem());
         if (mPager.getCurrentItem() == 0 && page != null) {
-            ((MessageFragment)page).add(test);
+            ((MessageFragment)page).add(message);
         }
     }
 }

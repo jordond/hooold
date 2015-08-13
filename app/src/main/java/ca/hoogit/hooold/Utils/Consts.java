@@ -25,7 +25,40 @@ package ca.hoogit.hooold.Utils;
  *
  */
 public class Consts {
+
+    /**
+     * Fragment argument keys
+     */
+    public static final String ARG_TYPE = "TYPE";
+
+    /**
+     * Intent Extras, bundle, savedInstance keys
+     */
+    public static final String KEY_MESSAGES = "MESSAGES";
+    public static final String KEY_MESSAGE = "MESSAGE";
+
+    /**
+     * Message types
+     */
     public static final int MESSAGE_TYPE_ALL = -1;
     public static final int MESSAGE_TYPE_SCHEDULED = 0;
     public static final int MESSAGE_TYPE_RECENT = 1;
+
+    /**
+     * Create Activity action code
+     */
+    public static final String MESSAGE_CREATE = "CREATE";
+    public static final String MESSAGE_EDIT = "EDIT";
+
+    /**
+     * Activity result codes
+     */
+    public static final int RESULT_MESSAGE_CREATE = 1991;
+    public static final int RESULT_MESSAGE_EDIT = 1992;
+    public static final int RESULT_PICK_CONTACT = 7683;
+
+    /**
+     * Animation durations
+     */
+    public static final long ANIMATION_LIST_ITEM_DELAY = 1000L;
 }

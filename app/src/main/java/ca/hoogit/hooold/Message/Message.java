@@ -19,6 +19,7 @@ package ca.hoogit.hooold.Message;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.orm.SugarRecord;
 import com.orm.dsl.Table;
@@ -173,7 +174,7 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     };
 
     @Override
-    public int compareTo(Message another) {
+    public int compareTo(@NonNull Message another) {
         return getScheduleDate().compareTo(another.getScheduleDate());
     }
 }
