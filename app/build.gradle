@@ -11,7 +11,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 repositories {
-    maven { url 'https://maven.fabric.io/public' }
+    maven {
+        url 'https://maven.fabric.io/public'
+    }
+    maven {
+        url  'http://dl.bintray.com/jordond/maven'
+    }
 }
 
 
@@ -48,5 +53,9 @@ dependencies {
         transitive = true;
     }
     compile 'com.github.satyan:sugar:1.4'
+    compile 'com.wdullaer:materialdatetimepicker:1.4.2'
+
+    // Personal repo
+    compile 'ca.hoogit:chips:1.0.3@aar'
 
 }

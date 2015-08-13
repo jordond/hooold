@@ -21,6 +21,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import com.android.ex.chips.RecipientEntry;
 import com.orm.SugarRecord;
 import com.orm.dsl.Table;
 
@@ -45,17 +46,23 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     private Date scheduleDate;
     private boolean repeat;
     private int type;
-    private String contact;
     private String message;
+    private List<RecipientEntry> recipients;
 
     public Message() {
-
     }
 
-    public Message(Date created, Date scheduleDate, String contact) {
-        this.created = created;
+    public Message(Date scheduleDate) {
+        this.created = new Date();
+        this.type = Consts.MESSAGE_TYPE_SCHEDULED;
         this.scheduleDate = scheduleDate;
-        this.contact = contact;
+    }
+
+    public Message(Date scheduleDate, List<RecipientEntry> recipients) {
+        this.created = new Date();
+        this.type = Consts.MESSAGE_TYPE_SCHEDULED;
+        this.scheduleDate = scheduleDate;
+        this.recipients = recipients;
     }
 
     /**
@@ -108,14 +115,6 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
         this.repeat = repeat;
     }
 
-    public String getContact() {
-        return contact;
-    }
-
-    public void setContact(String contact) {
-        this.contact = contact;
-    }
-
     public String getMessage() {
         return message;
     }
@@ -132,6 +131,14 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
         this.type = type;
     }
 
+    public List<RecipientEntry> getRecipients() {
+        return recipients;
+    }
+
+    public void setRecipients(List<RecipientEntry> recipients) {
+        this.recipients = recipients;
+    }
+
     /**
      * Parcelable - created with http://www.parcelabler.com/
      */
@@ -142,8 +149,14 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
         long tmpScheduleDate = in.readLong();
         scheduleDate = tmpScheduleDate != -1 ? new Date(tmpScheduleDate) : null;
         repeat = in.readByte() != 0x00;
-        contact = in.readString();
+        type = in.readInt();
         message = in.readString();
+        if (in.readByte() == 0x01) {
+            recipients = new ArrayList<RecipientEntry>();
+            in.readList(recipients, RecipientEntry.class.getClassLoader());
+        } else {
+            recipients = null;
+        }
     }
 
     @Override
@@ -156,8 +169,14 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
         dest.writeLong(created != null ? created.getTime() : -1L);
         dest.writeLong(scheduleDate != null ? scheduleDate.getTime() : -1L);
         dest.writeByte((byte) (repeat ? 0x01 : 0x00));
-        dest.writeString(contact);
+        dest.writeInt(type);
         dest.writeString(message);
+        if (recipients == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(recipients);
+        }
     }
 
     @SuppressWarnings("unused")
@@ -172,6 +191,7 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
             return new Message[size];
         }
     };
+
 
     @Override
     public int compareTo(@NonNull Message another) {

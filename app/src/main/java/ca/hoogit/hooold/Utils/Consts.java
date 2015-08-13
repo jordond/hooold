@@ -47,8 +47,8 @@ public class Consts {
     /**
      * Create Activity action code
      */
-    public static final String MESSAGE_CREATE = "CREATE";
-    public static final String MESSAGE_EDIT = "EDIT";
+    public static final String MESSAGE_CREATE = "Create";
+    public static final String MESSAGE_EDIT = "Edit";
 
     /**
      * Activity result codes
@@ -61,4 +61,10 @@ public class Consts {
      * Animation durations
      */
     public static final long ANIMATION_LIST_ITEM_DELAY = 1000L;
+
+
+    /**
+     * Fragment tags
+     */
+    public static final String FRAGMENT_TAG_DATETIME_PICKER = "DateTimePicker";
 }

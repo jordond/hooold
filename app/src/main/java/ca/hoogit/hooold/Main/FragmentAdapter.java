@@ -45,7 +45,7 @@ public class FragmentAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if (position < mTitles.length) {
-            return MessageFragment.newInstance(position, "Test " + position);
+            return MessageFragment.newInstance(position);
         }
         return null;
     }

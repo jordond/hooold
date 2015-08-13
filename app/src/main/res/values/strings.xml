@@ -25,4 +25,5 @@
     <string name="action_help">Help</string>
     <string name="title_activity_create">Create Message</string>
     <string name="action_create">Create</string>
+    <string name="activity_create_title_suffix">" Message"</string>
 </resources>

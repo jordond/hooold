@@ -29,9 +29,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.android.ex.chips.RecipientEntry;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import ca.hoogit.hooold.R;
 import ca.hoogit.hooold.Utils.Consts;
@@ -145,7 +147,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         Message message = mMessages.get(position);
 
-        holder.contact.setText(message.getContact());
+        List<RecipientEntry> entries = message.getRecipients();
+        String title = entries.get(0).getDisplayName();
+        if (entries.size() > 1) {
+            title = title + " +" + entries.size();
+        }
+        holder.recipient.setText(title);
+
         holder.date.setText(HoooldUtils.toListDate(message.getScheduleDate()));
         holder.message.setText(message.getMessage());
 
@@ -170,13 +178,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView icon;
-        TextView contact, date, message;
+        TextView recipient, date, message;
         Button edit, delete;
 
         public ViewHolder(View itemView) {
             super(itemView);
             icon = (ImageView) itemView.findViewById(R.id.icon);
-            contact = (TextView) itemView.findViewById(R.id.contact);
+            recipient = (TextView) itemView.findViewById(R.id.contact);
             date = (TextView) itemView.findViewById(R.id.date);
             message = (TextView) itemView.findViewById(R.id.message);
             if (mType == Consts.MESSAGE_TYPE_SCHEDULED) {
