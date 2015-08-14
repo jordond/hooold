@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -50,8 +51,9 @@ public class MessageFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (mAdapter != null) {
-            if (mMessages != null && mMessages.isEmpty())
-            mMessages = mAdapter.getList();
+            if (mMessages != null && mMessages.isEmpty()) {
+                mMessages = mAdapter.getList();
+            }
         }
         outState.putParcelableArrayList(Consts.KEY_MESSAGES, mMessages);
     }

@@ -17,12 +17,14 @@
  */
 package ca.hoogit.hooold.Message;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.android.ex.chips.RecipientEntry;
 import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
 import com.orm.dsl.Table;
 
 import java.util.ArrayList;
@@ -45,9 +47,11 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     private Date created;
     private Date scheduleDate;
     private boolean repeat;
-    private int type;
+    private int type; // TODO rename to status add type (facebook,twitter,etc)
     private String message;
-    private List<RecipientEntry> recipients;
+
+    @Ignore
+    private List<Recipient> recipients;
 
     public Message() {
     }
@@ -58,7 +62,7 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
         this.scheduleDate = scheduleDate;
     }
 
-    public Message(Date scheduleDate, List<RecipientEntry> recipients) {
+    public Message(Date scheduleDate, List<Recipient> recipients) {
         this.created = new Date();
         this.type = Consts.MESSAGE_TYPE_SCHEDULED;
         this.scheduleDate = scheduleDate;
@@ -70,26 +74,54 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
      */
 
     public static ArrayList<Message> all() {
-        List<Message> list = Message.listAll(Message.class);
-        return new ArrayList<>(list);
+        return (ArrayList<Message>) Message.listAll(Message.class);
     }
 
     public static ArrayList<Message> all(int type) {
         if (type == Consts.MESSAGE_TYPE_ALL) {
             return all();
         }
-        ArrayList<Message> sorted = new ArrayList<>();
-        for (Message message : Message.listAll(Message.class)) {
-            if (message.getType() == type) {
-                sorted.add(message);
-            }
-        }
+        List<Message> sorted;
+        sorted = Message.find(Message.class, "type = ?", String.valueOf(type));
+
         Collections.sort(sorted);
         Collections.reverse(sorted);
-        return sorted;
+        return (ArrayList<Message>) sorted;
     }
 
+    public List<RecipientEntry> getRecipientEntries() {
+        List<RecipientEntry> list = new ArrayList<>();
+        for (Recipient recipient : this.recipients) {
+            RecipientEntry entry = RecipientEntry.constructGeneratedEntry(
+                    recipient.getName(),
+                    recipient.getPhone(),
+                    Uri.parse(recipient.getPictureUrl()),
+                    true);
+            list.add(entry);
+        }
+        return list;
+    }
 
+    @Override
+    public long save() {
+        long id = super.save();
+        for (Recipient entry : recipients) {
+            entry.setMessage(id);
+            entry.save();
+        }
+        return id;
+    }
+
+    @Override
+    public boolean delete() {
+        if (this.recipients == null || this.recipients.isEmpty()) {
+            return super.delete();
+        }
+        for (Recipient recipient : this.recipients) {
+            recipient.delete();
+        }
+        return super.delete();
+    }
 
     public Date getCreated() {
         return created;
@@ -131,17 +163,27 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
         this.type = type;
     }
 
-    public List<RecipientEntry> getRecipients() {
+    public List<Recipient> getRecipients() {
+        if (this.recipients == null) {
+            return Recipient.allRecipients(this.getId());
+        }
         return recipients;
     }
 
-    public void setRecipients(List<RecipientEntry> recipients) {
+    public void setRecipients(List<Recipient> recipients) {
         this.recipients = recipients;
+    }
+
+    @Override
+    public int compareTo(@NonNull Message another) {
+        return getScheduleDate().compareTo(another.getScheduleDate());
     }
 
     /**
      * Parcelable - created with http://www.parcelabler.com/
      */
+
+
 
     protected Message(Parcel in) {
         long tmpCreated = in.readLong();
@@ -152,8 +194,8 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
         type = in.readInt();
         message = in.readString();
         if (in.readByte() == 0x01) {
-            recipients = new ArrayList<RecipientEntry>();
-            in.readList(recipients, RecipientEntry.class.getClassLoader());
+            recipients = new ArrayList<Recipient>();
+            in.readList(recipients, Recipient.class.getClassLoader());
         } else {
             recipients = null;
         }
@@ -191,10 +233,4 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
             return new Message[size];
         }
     };
-
-
-    @Override
-    public int compareTo(@NonNull Message another) {
-        return getScheduleDate().compareTo(another.getScheduleDate());
-    }
 }

@@ -56,6 +56,6 @@ dependencies {
     compile 'com.wdullaer:materialdatetimepicker:1.4.2'
 
     // Personal repo
-    compile 'ca.hoogit:chips:1.0.3@aar'
+    compile 'ca.hoogit:chips:1.0.4@aar'
 
 }

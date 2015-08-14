@@ -70,8 +70,9 @@
 
                 <ImageView
                     android:id="@+id/icon"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="68dp"
+                    android:layout_height="68dp"
+                    android:scaleType="fitCenter"
                     android:layout_gravity="center_horizontal"
                     android:background="@drawable/circle"
                     android:src="@drawable/ic_action_sms" />

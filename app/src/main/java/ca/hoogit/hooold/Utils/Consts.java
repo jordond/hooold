@@ -39,7 +39,7 @@ public class Consts {
 
     /**
      * Message types
-     */
+     */ // TODO rename to status
     public static final int MESSAGE_TYPE_ALL = -1;
     public static final int MESSAGE_TYPE_SCHEDULED = 0;
     public static final int MESSAGE_TYPE_RECENT = 1;

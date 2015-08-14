@@ -1,33 +1,32 @@
 package ca.hoogit.hooold.Scheduling;
 
+import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
+import android.os.Build;
+import android.support.design.widget.Snackbar;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 
 import com.android.ex.chips.BaseRecipientAdapter;
 import com.android.ex.chips.RecipientEditTextView;
-import com.android.ex.chips.recipientchip.DrawableRecipientChip;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.Calendar;
-import java.util.Date;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.OnClick;
 import ca.hoogit.hooold.BaseActivity;
+import ca.hoogit.hooold.Message.Message;
+import ca.hoogit.hooold.Message.Recipient;
 import ca.hoogit.hooold.R;
 import ca.hoogit.hooold.Utils.Consts;
 import ca.hoogit.hooold.Utils.HoooldUtils;
@@ -44,7 +43,6 @@ public class CreateActivity extends BaseActivity
     private String mAction;
 
     private Calendar mScheduledDate;
-
 
     @Override
     protected int getToolbarColor() {
@@ -66,13 +64,65 @@ public class CreateActivity extends BaseActivity
         return true;
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_create:
+                List<Recipient> list = Recipient.chipsToRecipients(mContact.getRecipients());
+
+                if (isValid(list)) {
+                    Message message = new Message(mScheduledDate.getTime());
+                    message.setRecipients(list);
+                    // TODO implement repeat message
+                    message.setMessage(mMessageText.getText().toString());
+
+                    Intent result = new Intent();
+                    result.putExtra(Consts.KEY_MESSAGE, message);
+
+                    setResult(RESULT_OK, result);
+                    finish();
+                }
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public boolean isValid(List<Recipient> recipients) {
+        String message = "";
+        int count = 0;
+        if (recipients == null || recipients.isEmpty()) {
+            message = "No recipients were chosen";
+            count++;
+        }
+
+        Calendar now = Calendar.getInstance();
+        if (mScheduledDate == null) {
+            message = "No scheduled date was chosen";
+            count++;
+        } else {
+            if (now.compareTo(mScheduledDate) != -1) {
+                message = "Scheduled date is not in the future";
+                count ++;
+            }
+        }
+
+        String messageContent = mMessageText.getText().toString();
+        if (messageContent.isEmpty()) {
+            message = "Please add a message to send";
+            count ++;
+        }
+
+        if (count > 0) {
+            makeSnackbar(message);
+            return false;
+        }
+        return true;
+    }
+
+    public void makeSnackbar(String validationMessage) {
+        View view = getWindow().getDecorView().findViewById(R.id.fields);
+        Snackbar.make(view, validationMessage, Snackbar.LENGTH_SHORT).show();
     }
 
     @Override
@@ -82,7 +132,8 @@ public class CreateActivity extends BaseActivity
         getToolbar().setTitle(mAction + getString(R.string.activity_create_title_suffix));
 
         mContact.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
-        BaseRecipientAdapter adapter = new BaseRecipientAdapter(BaseRecipientAdapter.QUERY_TYPE_PHONE, this);
+        BaseRecipientAdapter adapter = new BaseRecipientAdapter(
+                BaseRecipientAdapter.QUERY_TYPE_PHONE, this);
         adapter.setShowMobileOnly(true);
         mContact.setAdapter(adapter);
         mContact.dismissDropDownOnItemSelected(true);
@@ -115,7 +166,7 @@ public class CreateActivity extends BaseActivity
         TimePickerDialog tpd = TimePickerDialog.newInstance(
                 CreateActivity.this,
                 now.get(Calendar.HOUR_OF_DAY),
-                now.get(Calendar.MINUTE),
+                now.get(Calendar.MINUTE) + 1,
                 false
         );
         tpd.show(getFragmentManager(), Consts.FRAGMENT_TAG_DATETIME_PICKER);
@@ -126,6 +177,6 @@ public class CreateActivity extends BaseActivity
         mScheduledDate.set(Calendar.HOUR_OF_DAY, hour);
         mScheduledDate.set(Calendar.MINUTE, minute);
 
-        mDate.setText(HoooldUtils.toListDate(mScheduledDate.getTime()));
+        mDate.setText(HoooldUtils.toFancyDate(mScheduledDate.getTime()));
     }
 }

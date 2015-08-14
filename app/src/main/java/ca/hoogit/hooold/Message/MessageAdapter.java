@@ -19,6 +19,7 @@ package ca.hoogit.hooold.Message;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -29,7 +30,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.android.ex.chips.RecipientEntry;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,7 +83,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     public boolean update(ArrayList<Message> messages) {
         if (messages == null || messages.isEmpty()) {
-            mMessages = new ArrayList<>();
             mMessages = Message.all(mType);
         } else {
             mMessages = messages;
@@ -147,13 +146,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         Message message = mMessages.get(position);
 
-        List<RecipientEntry> entries = message.getRecipients();
-        String title = entries.get(0).getDisplayName();
-        if (entries.size() > 1) {
-            title = title + " +" + entries.size();
+        List<Recipient> recipients = message.getRecipients();
+        if (recipients != null && !recipients.isEmpty()) {
+            String title = recipients.get(0).getName();
+            if (recipients.size() > 1) {
+                title = title + " +" + (recipients.size() - 1);
+            }
+            holder.recipient.setText(title);
+        } else {
+            recipients = new ArrayList<>();
         }
-        holder.recipient.setText(title);
-
         holder.date.setText(HoooldUtils.toListDate(message.getScheduleDate()));
         holder.message.setText(message.getMessage());
 
@@ -168,6 +170,20 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
         GradientDrawable backgroundGradient = (GradientDrawable) holder.icon.getBackground();
         backgroundGradient.setColor(color);
+
+        String url = "";
+        for (Recipient recipient : recipients) {
+            if (recipient.getPictureUrl() !=  null) {
+                url = recipient.getPictureUrl();
+                break;
+            }
+        }
+        if (url.isEmpty()) {
+            holder.icon.setImageResource(R.drawable.ic_action_sms);
+        } else {
+            holder.icon.setImageURI(Uri.parse(url));
+        }
+
     }
 
     @Override
