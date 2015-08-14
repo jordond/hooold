@@ -18,6 +18,7 @@
 package ca.hoogit.hooold.Message;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.design.widget.Snackbar;
@@ -150,7 +151,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         if (recipients != null && !recipients.isEmpty()) {
             String title = recipients.get(0).getName();
             if (recipients.size() > 1) {
-                title = title + " +" + (recipients.size() - 1);
+                String extra = "+" + (recipients.size() - 1);
+                title = title + " " + extra;
+                holder.recipientNum.setText(extra);
+                holder.recipientNum.setVisibility(View.VISIBLE);
+
             }
             holder.recipient.setText(title);
         } else {
@@ -181,7 +186,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         if (url.isEmpty()) {
             holder.icon.setImageResource(R.drawable.ic_action_sms);
         } else {
-            holder.icon.setImageURI(Uri.parse(url));
+            Bitmap icon = HoooldUtils.uriToBitmap(mContext, Uri.parse(url));
+            if (icon != null) {
+                holder.icon.setImageBitmap(icon);
+            }
         }
 
     }
@@ -194,7 +202,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ImageView icon;
-        TextView recipient, date, message;
+        TextView recipient, date, message, recipientNum;
         Button edit, delete;
 
         public ViewHolder(View itemView) {
@@ -203,6 +211,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             recipient = (TextView) itemView.findViewById(R.id.contact);
             date = (TextView) itemView.findViewById(R.id.date);
             message = (TextView) itemView.findViewById(R.id.message);
+            recipientNum = (TextView) itemView.findViewById(R.id.recipient_num);
             if (mType == Consts.MESSAGE_TYPE_SCHEDULED) {
                 edit = (Button) itemView.findViewById(R.id.edit);
                 delete = (Button) itemView.findViewById(R.id.delete);

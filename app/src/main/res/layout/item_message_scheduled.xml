@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="150dp"
-    android:layout_marginBottom="16dp"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
     app:cardBackgroundColor="@android:color/white"
     app:cardCornerRadius="0dp"
     app:cardElevation="2dp">
@@ -76,6 +76,17 @@
                     android:layout_gravity="center_horizontal"
                     android:background="@drawable/circle"
                     android:src="@drawable/ic_action_sms" />
+
+                <TextView
+                    android:id="@+id/recipient_num"
+                    android:layout_width="68dp"
+                    android:layout_height="68dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:gravity="center"
+                    android:visibility="invisible"
+                    android:background="@drawable/circle_transparent"
+                    android:textColor="@color/md_white_1000"
+                    android:textSize="28sp"/>
 
             </RelativeLayout>
 
