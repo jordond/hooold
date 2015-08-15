@@ -26,4 +26,7 @@
     <string name="title_activity_create">Create Message</string>
     <string name="action_create">Create</string>
     <string name="activity_create_title_suffix">" Message"</string>
+    <string name="action_send_now">Send Now</string>
+    <string name="action_delete_message">Delete Message</string>
+    <string name="action_edit">Edit</string>
 </resources>

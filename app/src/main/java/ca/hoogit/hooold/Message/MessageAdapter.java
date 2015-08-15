@@ -17,6 +17,9 @@
  */
 package ca.hoogit.hooold.Message;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
@@ -26,6 +29,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,6 +43,7 @@ import java.util.List;
 import ca.hoogit.hooold.R;
 import ca.hoogit.hooold.Utils.Consts;
 import ca.hoogit.hooold.Utils.HoooldUtils;
+import ca.hoogit.hooold.Utils.IconAnimator;
 
 /**
  * @author jordon
@@ -52,9 +57,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     private Context mContext;
     private View mView;
     private int mType;
+    private OnCardAction mListener;
 
     private ArrayList<Integer> mUnusedColors;
     private ArrayList<Integer> mUsedColors;
+
+    private ArrayList<ViewHolder> mViewHolders;
 
     public MessageAdapter(Context context, int type) {
         mContext = context;
@@ -66,11 +74,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         mMessages = new ArrayList<>();
         mUnusedColors = new ArrayList<>();
         mUsedColors = new ArrayList<>();
+        mViewHolders = new ArrayList<>();
 
         int[] colors = mContext.getResources().getIntArray(R.array.colors);
         for (int color : colors) {
             mUnusedColors.add(color);
         }
+    }
+
+    public void setListener(OnCardAction listener) {
+        this.mListener = listener;
     }
 
     public ArrayList<Message> getList() {
@@ -123,12 +136,45 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         return position;
     }
 
+    public void add(List<Message> messages) {
+        if (messages != null) {
+            for (Message message : messages) {
+                add(message);
+            }
+        }
+    }
+
     public void delete(int position) {
         Message message = mMessages.get(position);
         if (message != null) {
             message.delete();
             mMessages.remove(position);
             notifyItemRemoved(position);
+        }
+    }
+
+    public void delete(Message message) {
+        int position = mMessages.indexOf(message);
+        if (position !=  -1) {
+            message.delete();
+            mMessages.remove(message);
+            notifyItemRemoved(position);
+        }
+    }
+
+    public void delete(List<Message> messages) {
+        if (messages != null) {
+            if (!messages.isEmpty()) {
+                for (Message message : messages) {
+                    delete(message);
+                }
+            }
+        }
+    }
+
+    public void reset() {
+        for (ViewHolder holder : mViewHolders) {
+            holder.reset();
         }
     }
 
@@ -140,7 +186,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             layoutId = R.layout.item_message_recent;
         }
         mView = inflater.inflate(layoutId, parent, false);
-        return new ViewHolder(mView);
+
+        ViewHolder holder = new ViewHolder(mView);
+        mViewHolders.add(holder);
+        return holder;
     }
 
     @Override
@@ -155,6 +204,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 title = title + " " + extra;
                 holder.recipientNum.setText(extra);
                 holder.recipientNum.setVisibility(View.VISIBLE);
+                holder.hasExtraRecipient = true;
 
             }
             holder.recipient.setText(title);
@@ -199,65 +249,70 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         return mMessages.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener, IconAnimator.OnAnimationComplete {
 
-        ImageView icon;
+        ImageView icon, iconReverse;
         TextView recipient, date, message, recipientNum;
-        Button edit, delete;
+
+        IconAnimator animator;
+
+        boolean hasExtraRecipient;
+        boolean selected;
 
         public ViewHolder(View itemView) {
             super(itemView);
             icon = (ImageView) itemView.findViewById(R.id.icon);
+            iconReverse = (ImageView) itemView.findViewById(R.id.icon_reverse);
             recipient = (TextView) itemView.findViewById(R.id.contact);
             date = (TextView) itemView.findViewById(R.id.date);
             message = (TextView) itemView.findViewById(R.id.message);
             recipientNum = (TextView) itemView.findViewById(R.id.recipient_num);
-            if (mType == Consts.MESSAGE_TYPE_SCHEDULED) {
-                edit = (Button) itemView.findViewById(R.id.edit);
-                delete = (Button) itemView.findViewById(R.id.delete);
+            icon.setOnClickListener(this);
+            iconReverse.setOnClickListener(this);
 
-                edit.setOnClickListener(this);
-                delete.setOnClickListener(this);
+            animator = new IconAnimator(mContext, icon, iconReverse);
+            animator.setListener(this);
+
+            icon.setTag(this);
+            iconReverse.setTag(this);
+        }
+
+        public void reset() {
+            if (selected) {
+                animator.start();
+                selected = false;
             }
         }
 
         @Override
-        public void onClick(View v) {
+        public void onClick(final View v) {
             final int position = getAdapterPosition();
             switch (v.getId()) {
-                case R.id.edit:
-                    break;
-                case R.id.delete:
-                    new MaterialDialog.Builder(mContext)
-                            .title(R.string.message_delete_title)
-                            .content(R.string.message_delete_content)
-                            .positiveText(R.string.message_delete_positive)
-                            .negativeText(R.string.message_delete_negative)
-                            .autoDismiss(true)
-                            .callback(new MaterialDialog.ButtonCallback() {
-                                @Override
-                                public void onPositive(MaterialDialog dialog) {
-                                    super.onPositive(dialog);
-                                    final Message message = mMessages.get(position);
-                                    delete(position);
-                                    Snackbar.make(mView, mContext.getString(R.string.message_delete_snackbar_text), Snackbar.LENGTH_LONG)
-                                            .setAction(R.string.snackbar_undo,
-                                                    new View.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(View v) {
-                                                            add(message);
-                                                        }
-                                                    }).show();
-                                }
-
-                                @Override
-                                public void onNegative(MaterialDialog dialog) {
-                                    super.onNegative(dialog);
-                                    dialog.dismiss();
-                                }
-                            }).show();
+                case R.id.icon:
+                case R.id.icon_reverse:
+                    if (hasExtraRecipient) {
+                        recipientNum.setVisibility(View.INVISIBLE);
+                    }
+                    animator.start();
+                    selected = !selected;
+                    if (mListener != null) {
+                        mListener.cardSelected(v, mMessages.get(getAdapterPosition()));
+                    }
                     break;
             }
         }
+
+        @Override
+        public void animationCompleted(boolean isReversed) {
+            if (hasExtraRecipient) {
+                int visibility = isReversed ? View.INVISIBLE : View.VISIBLE;
+                recipientNum.setVisibility(visibility);
+            }
+        }
+    }
+
+    public interface OnCardAction {
+        void cardSelected(View view, Message message);
     }
 }

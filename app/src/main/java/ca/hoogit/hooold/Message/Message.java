@@ -105,6 +105,9 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     @Override
     public long save() {
         long id = super.save();
+        if (recipients == null) {
+            recipients = Recipient.allRecipients(id);
+        }
         for (Recipient entry : recipients) {
             entry.setMessage(id);
             entry.save();
@@ -115,7 +118,7 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     @Override
     public boolean delete() {
         if (this.recipients == null || this.recipients.isEmpty()) {
-            return super.delete();
+            this.recipients = Recipient.allRecipients(getId());
         }
         for (Recipient recipient : this.recipients) {
             recipient.delete();
@@ -177,6 +180,22 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     @Override
     public int compareTo(@NonNull Message another) {
         return getScheduleDate().compareTo(another.getScheduleDate());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
+        final Message other = (Message) o;
+        if ((this.getId() == null) ? (other.getId() != null) :
+                !this.getId().equals(other.getId())) {
+            return false;
+        }
+        return true;
     }
 
     /**
