@@ -67,12 +67,28 @@ public class IconAnimator {
         return isOriginal = !isOriginal;
     }
 
+    public void start(boolean selected) {
+        if (!selected) {
+            flip(mIcon, ANIMATION_FLIP, true, ANIMATION_DURATION);
+        } else{
+            flip(mIconReverse, ANIMATION_FLIP, false, ANIMATION_DURATION);
+        }
+    }
+
     public boolean start() {
         return start(ANIMATION_DURATION);
     }
 
-    public void reset() {
-        start(0L);
+    public void reset(boolean shouldReset) {
+        if (shouldReset) {
+            flip(mIcon, ANIMATION_FLIP, false, ANIMATION_DURATION);
+        }
+    }
+
+    public void animate(boolean start) {
+        if (start) {
+            start(ANIMATION_DURATION);
+        }
     }
 
     private void flip(ImageView view, int animation, final boolean forward, final long duration) {
@@ -89,9 +105,14 @@ public class IconAnimator {
             public void onAnimationEnd(Animator animation) {
                 if (!animationFinished) {
                     if (forward) {
-                        forward(duration);
+                        flip(mIconReverse, ANIMATION_FLIP_REVERSE, true, duration);
                     } else {
-                        backward(duration);
+                        flip(mIcon, ANIMATION_FLIP_REVERSE, false, duration);
+                    }
+                    if (mIconReverse.getVisibility() == View.VISIBLE) {
+                        mIconReverse.setVisibility(View.INVISIBLE);
+                    } else {
+                        mIconReverse.setVisibility(View.VISIBLE);
                     }
                     isReversed = !isReversed;
                     animationFinished = true;
@@ -114,26 +135,6 @@ public class IconAnimator {
             }
         });
         anim.start();
-    }
-
-    private void forward(long duration) {
-        if (!isReversed) {
-            flip(mIconReverse, ANIMATION_FLIP_REVERSE, true, duration);
-            mIconReverse.setVisibility(View.VISIBLE);
-        } else {
-            flip(mIcon, ANIMATION_FLIP, true, duration);
-            mIconReverse.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    private void backward(long duration) {
-        if (isReversed) {
-            flip(mIcon, ANIMATION_FLIP_REVERSE, false, duration);
-            mIconReverse.setVisibility(View.VISIBLE);
-        } else {
-            flip(mIconReverse, ANIMATION_FLIP, false, duration);
-            mIconReverse.setVisibility(View.INVISIBLE);
-        }
     }
 
     public interface OnAnimationComplete {

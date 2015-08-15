@@ -49,6 +49,8 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     private boolean repeat;
     private int type; // TODO rename to status add type (facebook,twitter,etc)
     private String message;
+    private boolean selected;
+    private boolean wasSelected;
 
     @Ignore
     private List<Recipient> recipients;
@@ -83,6 +85,9 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
         }
         List<Message> sorted;
         sorted = Message.find(Message.class, "type = ?", String.valueOf(type));
+        for (Message message : sorted) {
+            message.getRecipients();
+        }
 
         Collections.sort(sorted);
         Collections.reverse(sorted);
@@ -98,6 +103,16 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
                     Uri.parse(recipient.getPictureUrl()),
                     true);
             list.add(entry);
+        }
+        return list;
+    }
+
+    public static List<Message> getSelected(List<Message> messages) {
+        List<Message> list = new ArrayList<>();
+        for (Message message : messages) {
+            if (message.isSelected()) {
+                list.add(message);
+            }
         }
         return list;
     }
@@ -168,13 +183,29 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
 
     public List<Recipient> getRecipients() {
         if (this.recipients == null) {
-            return Recipient.allRecipients(this.getId());
+            return this.recipients = Recipient.allRecipients(this.getId());
         }
         return recipients;
     }
 
     public void setRecipients(List<Recipient> recipients) {
         this.recipients = recipients;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    public boolean wasSelected() {
+        return wasSelected;
+    }
+
+    public void setWasSelected(boolean wasSelected) {
+        this.wasSelected = wasSelected;
     }
 
     @Override
@@ -191,18 +222,13 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
             return false;
         }
         final Message other = (Message) o;
-        if ((this.getId() == null) ? (other.getId() != null) :
-                !this.getId().equals(other.getId())) {
-            return false;
-        }
-        return true;
+        return !((this.getId() == null) ? (other.getId() != null) :
+                !this.getId().equals(other.getId()));
     }
 
     /**
      * Parcelable - created with http://www.parcelabler.com/
      */
-
-
 
     protected Message(Parcel in) {
         long tmpCreated = in.readLong();
@@ -212,6 +238,8 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
         repeat = in.readByte() != 0x00;
         type = in.readInt();
         message = in.readString();
+        selected = in.readByte() != 0x00;
+        wasSelected = in.readByte() != 0x00;
         if (in.readByte() == 0x01) {
             recipients = new ArrayList<Recipient>();
             in.readList(recipients, Recipient.class.getClassLoader());
@@ -232,6 +260,8 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
         dest.writeByte((byte) (repeat ? 0x01 : 0x00));
         dest.writeInt(type);
         dest.writeString(message);
+        dest.writeByte((byte) (selected ? 0x01 : 0x00));
+        dest.writeByte((byte) (wasSelected ? 0x01 : 0x00));
         if (recipients == null) {
             dest.writeByte((byte) (0x00));
         } else {

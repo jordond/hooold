@@ -43,9 +43,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
 
     private MessageAdapter mAdapter;
     private ArrayList<Message> mMessages = new ArrayList<>();
-    private ArrayList<Message> mSelectedMessages = new ArrayList<>();
     private ArrayList<Message> mDeletedMessages = new ArrayList<>();
-    private ArrayList<MessageAdapter.ViewHolder> mHolders = new ArrayList<>();
 
     public static MessageFragment newInstance(int type) {
         MessageFragment fragment = new MessageFragment();
@@ -134,7 +132,8 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         int menuId = R.menu.menu_scheduled_selected_multiple;
-        switch (mSelectedMessages.size()) {
+        List<Message> selected = Message.getSelected(mAdapter.getList());
+        switch (selected.size()) {
             case 0:
                 menuId = R.menu.menu_main;
                 break;
@@ -142,7 +141,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 menuId = R.menu.menu_scheduled_selected_single;
                 break;
         }
-        mListener.itemSelected(mSelectedMessages.size() > 0);
+        mListener.itemSelected(selected.size() > 0);
         inflater.inflate(menuId, menu);
     }
 
@@ -166,30 +165,13 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     }
 
     @Override
-    public void cardSelected(View view, Message message) {
-        if (message != null) {
-            if (!mSelectedMessages.contains(message)) {
-                mSelectedMessages.add(message);
-                mHolders.add((MessageAdapter.ViewHolder) view.getTag());
-            } else {
-                mSelectedMessages.remove(message);
-                mHolders.remove((MessageAdapter.ViewHolder) view.getTag());
-
-            }
-            getActivity().invalidateOptionsMenu();
-        }
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                resetHolderIcons();
-                return true;
             case R.id.action_delete:
                 delete();
                 return true;
             case R.id.action_edit:
+                reset();
                 return true;
             case R.id.action_send_now:
                 // TODO Implement sending message immediately
@@ -199,23 +181,19 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
         return super.onOptionsItemSelected(item);
     }
 
-    public void resetHolderIcons() {
-        for (MessageAdapter.ViewHolder holder : mHolders) {
-            if (holder == null) {
-                continue;
-            }
-            holder.reset();
-        }
-        mSelectedMessages.clear();
-        mHolders.clear();
+    public void reset() {
+        List<Message> list = Message.getSelected(mAdapter.getList());
+        mAdapter.unSelect(list);
         getActivity().invalidateOptionsMenu();
+        mListener.itemSelected(false);
     }
 
     private void delete() {
+        final List<Message> selected = Message.getSelected(mAdapter.getList());
         new MaterialDialog.Builder(getActivity())
                 .title(getResources().getString(R.string.message_delete_title))
                 .content(getResources().getString(R.string.message_delete_content)
-                        + " " + mSelectedMessages.size() + " messages will be deleted.")
+                        + " " + selected.size() + " messages will be deleted.")
                 .positiveText(getResources().getString(R.string.message_delete_positive))
                 .negativeText(getResources().getString(R.string.message_delete_negative))
                 .autoDismiss(true)
@@ -223,12 +201,11 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         super.onPositive(dialog);
-                        mAdapter.delete(mSelectedMessages);
-                        mDeletedMessages.addAll(mSelectedMessages);
+                        mAdapter.delete(selected);
+                        mDeletedMessages.addAll(selected);
                         showDeleteSnackbar();
-                        mSelectedMessages.clear();
                         toggleViews();
-                        resetHolderIcons();
+                        reset();
                     }
 
                     @Override
@@ -250,6 +227,11 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                         mDeletedMessages.clear();
                     }
                 }).show();
+    }
+
+    @Override
+    public void cardSelected(View view, Message message) {
+        getActivity().invalidateOptionsMenu();
     }
 
     public interface IMessageInteraction {

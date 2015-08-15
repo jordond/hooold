@@ -17,25 +17,17 @@
  */
 package ca.hoogit.hooold.Message;
 
-import android.animation.Animator;
-import android.animation.AnimatorInflater;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,14 +48,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     private ArrayList<Message> mMessages;
     private Context mContext;
-    private View mView;
     private int mType;
     private OnCardAction mListener;
 
     private ArrayList<Integer> mUnusedColors;
     private ArrayList<Integer> mUsedColors;
-
-    private ArrayList<ViewHolder> mViewHolders;
 
     public MessageAdapter(Context context, int type) {
         mContext = context;
@@ -75,7 +64,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         mMessages = new ArrayList<>();
         mUnusedColors = new ArrayList<>();
         mUsedColors = new ArrayList<>();
-        mViewHolders = new ArrayList<>();
 
         int[] colors = mContext.getResources().getIntArray(R.array.colors);
         for (int color : colors) {
@@ -118,6 +106,18 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         return false;
     }
 
+    public void unSelect(List<Message> messages) {
+        for (Message message : messages) {
+            if (message.isSelected()) {
+                int position = mMessages.indexOf(message);
+                Message m = mMessages.get(position);
+                m.setSelected(false);
+                m.setWasSelected(true);
+                notifyItemChanged(position);
+            }
+        }
+    }
+
     public void swap(ArrayList<Message> list) {
         mMessages.clear();
         mMessages.addAll(list);
@@ -132,7 +132,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             Collections.sort(mMessages);
             Collections.reverse(mMessages);
             position = mMessages.indexOf(message);
-            notifyItemInserted(position);
+            notifyDataSetChanged();
         }
         return position;
     }
@@ -173,12 +173,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }
     }
 
-    public void reset() {
-        for (ViewHolder holder : mViewHolders) {
-            holder.reset();
-        }
-    }
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
@@ -186,11 +180,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         if (mType == Consts.MESSAGE_TYPE_RECENT) {
             layoutId = R.layout.item_message_recent;
         }
-        mView = inflater.inflate(layoutId, parent, false);
+        View view = inflater.inflate(layoutId, parent, false);
 
-        ViewHolder holder = new ViewHolder(mView);
-        mViewHolders.add(holder);
-        return holder;
+        return new ViewHolder(view);
     }
 
     @Override
@@ -206,11 +198,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 holder.recipientNum.setText(extra);
                 holder.recipientNum.setVisibility(View.VISIBLE);
                 holder.hasExtraRecipient = true;
-
+            } else {
+                holder.recipientNum.setVisibility(View.INVISIBLE);
+                holder.hasExtraRecipient = false;
             }
             holder.recipient.setText(title);
         } else {
             recipients = new ArrayList<>();
+        }
+        if (message.isRepeat()) {
+            holder.repeat.setVisibility(View.VISIBLE);
         }
         holder.date.setText(HoooldUtils.toListDate(message.getScheduleDate()));
         holder.message.setText(message.getMessage());
@@ -222,6 +219,18 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         if (mUnusedColors.isEmpty()) {
             mUnusedColors.addAll(mUsedColors);
             mUsedColors.clear();
+        }
+
+        //holder.selected = message.isSelected();
+        if (message.isSelected()) {
+            holder.iconReverse.setVisibility(View.VISIBLE);
+            holder.selected = true;
+        } else if (message.wasSelected()) {
+            holder.iconReverse.setVisibility(View.VISIBLE);
+            holder.selected = false;
+            holder.animator.reset(true);
+            message.setWasSelected(false);
+            mMessages.set(position, message);
         }
 
         GradientDrawable backgroundGradient = (GradientDrawable) holder.icon.getBackground();
@@ -254,7 +263,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             implements View.OnClickListener, IconAnimator.OnAnimationComplete {
 
         CardView layout;
-        ImageView icon, iconReverse;
+        ImageView icon, iconReverse, repeat;
         TextView recipient, date, message, recipientNum;
 
         IconAnimator animator;
@@ -266,6 +275,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             super(itemView);
             icon = (ImageView) itemView.findViewById(R.id.icon);
             iconReverse = (ImageView) itemView.findViewById(R.id.icon_reverse);
+            repeat = (ImageView) itemView.findViewById(R.id.repeat);
             recipient = (TextView) itemView.findViewById(R.id.contact);
             date = (TextView) itemView.findViewById(R.id.date);
             message = (TextView) itemView.findViewById(R.id.message);
@@ -286,24 +296,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             iconReverse.setTag(this);
         }
 
-        public void reset() {
-            if (selected) {
-                animator.reset();
-                selected = false;
-            }
-        }
-
         @Override
         public void onClick(final View v) {
             switch (v.getId()) {
                 case R.id.card:
                 case R.id.icon:
                 case R.id.icon_reverse:
-                    if (hasExtraRecipient) {
-                        recipientNum.setVisibility(View.INVISIBLE);
-                    }
-                    animator.start();
-                    selected = !selected;
+                    recipientNum.setVisibility(View.INVISIBLE);
+                    animator.start(selected);
+                    mMessages.get(getAdapterPosition()).setSelected(selected = !selected);
                     if (mListener != null) {
                         mListener.cardSelected(v, mMessages.get(getAdapterPosition()));
                     }
@@ -316,6 +317,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             if (hasExtraRecipient) {
                 int visibility = isReversed ? View.INVISIBLE : View.VISIBLE;
                 recipientNum.setVisibility(visibility);
+            } else {
+                recipientNum.setVisibility(View.INVISIBLE);
             }
         }
     }

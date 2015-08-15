@@ -57,7 +57,7 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
             case android.R.id.home:
                 MessageFragment frag = currentPage();
                 if (frag != null) {
-                    frag.resetHolderIcons();
+                    frag.reset();
                 }
                 return true;
             default:
@@ -83,6 +83,12 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
     @OnClick(R.id.fab)
     public void onClick(View view) {
         Intent createIntent = new Intent(this, CreateActivity.class);
+        try {
+            //noinspection ConstantConditions
+            currentPage().reset();
+        } catch (NullPointerException e) {
+            Log.e(TAG, "failed to reset current page adapter");
+        }
         createIntent.setAction(Consts.MESSAGE_CREATE);
         startActivityForResult(createIntent, Consts.RESULT_MESSAGE_CREATE);
     }
@@ -103,6 +109,7 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
         } else {
             Log.e(TAG, "Activity result failed");
         }
+        mPager.getAdapter().notifyDataSetChanged();
     }
 
     private MessageFragment currentPage() {
