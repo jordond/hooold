@@ -1,8 +1,12 @@
 package ca.hoogit.hooold.Message;
 
+import android.app.Activity;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -29,13 +34,12 @@ import ca.hoogit.hooold.Utils.Consts;
 public class MessageFragment extends Fragment implements MessageAdapter.OnCardAction {
 
     private static final String TAG = MessageFragment.class.getSimpleName();
-    @Bind(R.id.recycler)
-    RecyclerView mRecyclerView;
-    @Bind(R.id.empty_list)
-    TextView mEmptyListView;
+    @Bind(R.id.recycler) RecyclerView mRecyclerView;
+    @Bind(R.id.empty_list) TextView mEmptyListView;
 
     private View mRootView;
     private int mType;
+    private IMessageInteraction mListener;
 
     private MessageAdapter mAdapter;
     private ArrayList<Message> mMessages = new ArrayList<>();
@@ -100,6 +104,17 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (IMessageInteraction) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement IMessageInteraction");
+        }
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 
@@ -127,13 +142,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 menuId = R.menu.menu_scheduled_selected_single;
                 break;
         }
-
-        try {
-            BaseActivity activity = (BaseActivity) getActivity();
-            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(mSelectedMessages.size() > 0);
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Failed to set displayHomeAsUpEnabled");
-        }
+        mListener.itemSelected(mSelectedMessages.size() > 0);
         inflater.inflate(menuId, menu);
     }
 
@@ -183,14 +192,18 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
             case R.id.action_edit:
                 return true;
             case R.id.action_send_now:
-                resetHolderIcons();
+                // TODO Implement sending message immediately
+                Log.d(TAG, "TODO implement sending message immediately");
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void resetHolderIcons() {
+    public void resetHolderIcons() {
         for (MessageAdapter.ViewHolder holder : mHolders) {
+            if (holder == null) {
+                continue;
+            }
             holder.reset();
         }
         mSelectedMessages.clear();
@@ -237,5 +250,9 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                         mDeletedMessages.clear();
                     }
                 }).show();
+    }
+
+    public interface IMessageInteraction {
+        void itemSelected(boolean isSelected);
     }
 }

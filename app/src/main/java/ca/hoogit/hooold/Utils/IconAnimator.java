@@ -35,9 +35,10 @@ import ca.hoogit.hooold.R;
  */
 public class IconAnimator {
 
-    public static final long ANIMATION_DURATION = 200L;
     public static final int ANIMATION_FLIP = R.animator.flip;
     public static final int ANIMATION_FLIP_REVERSE = R.animator.flip_reverse;
+
+    public static final long ANIMATION_DURATION = 200L;
 
     private Context mContext;
     private ImageView mIcon;
@@ -57,16 +58,24 @@ public class IconAnimator {
         mListener = listener;
     }
 
-    public boolean start() {
+    public boolean start(long duration) {
         if (!isOriginal) {
-            flip(mIcon, ANIMATION_FLIP, true);
+            flip(mIcon, ANIMATION_FLIP, true, duration);
         } else {
-            flip(mIconReverse, ANIMATION_FLIP, false);
+            flip(mIconReverse, ANIMATION_FLIP, false, duration);
         }
         return isOriginal = !isOriginal;
     }
 
-    private void flip(ImageView view, int animation, final boolean forward) {
+    public boolean start() {
+        return start(ANIMATION_DURATION);
+    }
+
+    public void reset() {
+        start(0L);
+    }
+
+    private void flip(ImageView view, int animation, final boolean forward, final long duration) {
         ObjectAnimator anim = (ObjectAnimator) AnimatorInflater.loadAnimator(mContext, animation);
         anim.setTarget(view);
         anim.setDuration(ANIMATION_DURATION);
@@ -80,9 +89,9 @@ public class IconAnimator {
             public void onAnimationEnd(Animator animation) {
                 if (!animationFinished) {
                     if (forward) {
-                        forward();
+                        forward(duration);
                     } else {
-                        backward();
+                        backward(duration);
                     }
                     isReversed = !isReversed;
                     animationFinished = true;
@@ -107,22 +116,22 @@ public class IconAnimator {
         anim.start();
     }
 
-    private void forward() {
+    private void forward(long duration) {
         if (!isReversed) {
-            flip(mIconReverse, ANIMATION_FLIP_REVERSE, true);
+            flip(mIconReverse, ANIMATION_FLIP_REVERSE, true, duration);
             mIconReverse.setVisibility(View.VISIBLE);
         } else {
-            flip(mIcon, ANIMATION_FLIP, true);
+            flip(mIcon, ANIMATION_FLIP, true, duration);
             mIconReverse.setVisibility(View.INVISIBLE);
         }
     }
 
-    private void backward() {
+    private void backward(long duration) {
         if (isReversed) {
-            flip(mIcon, ANIMATION_FLIP_REVERSE, false);
+            flip(mIcon, ANIMATION_FLIP_REVERSE, false, duration);
             mIconReverse.setVisibility(View.VISIBLE);
         } else {
-            flip(mIconReverse, ANIMATION_FLIP, false);
+            flip(mIconReverse, ANIMATION_FLIP, false, duration);
             mIconReverse.setVisibility(View.INVISIBLE);
         }
     }

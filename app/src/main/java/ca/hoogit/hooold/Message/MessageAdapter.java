@@ -25,6 +25,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -252,6 +253,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener, IconAnimator.OnAnimationComplete {
 
+        CardView layout;
         ImageView icon, iconReverse;
         TextView recipient, date, message, recipientNum;
 
@@ -268,6 +270,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             date = (TextView) itemView.findViewById(R.id.date);
             message = (TextView) itemView.findViewById(R.id.message);
             recipientNum = (TextView) itemView.findViewById(R.id.recipient_num);
+
+            if (mType == Consts.MESSAGE_TYPE_SCHEDULED) {
+                layout = (CardView) itemView.findViewById(R.id.card);
+                layout.setOnClickListener(this);
+            }
+
             icon.setOnClickListener(this);
             iconReverse.setOnClickListener(this);
 
@@ -280,15 +288,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
         public void reset() {
             if (selected) {
-                animator.start();
+                animator.reset();
                 selected = false;
             }
         }
 
         @Override
         public void onClick(final View v) {
-            final int position = getAdapterPosition();
             switch (v.getId()) {
+                case R.id.card:
                 case R.id.icon:
                 case R.id.icon_reverse:
                     if (hasExtraRecipient) {
