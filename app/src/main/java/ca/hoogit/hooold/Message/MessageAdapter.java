@@ -45,10 +45,11 @@ import ca.hoogit.hooold.Utils.IconAnimator;
  */
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
-    private MessageList mMessages;
     private Context mContext;
     private int mType;
     private OnCardAction mListener;
+
+    private MessageList mMessages;
 
     private ArrayList<Integer> mUnusedColors;
     private ArrayList<Integer> mUsedColors;
@@ -108,6 +109,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }
     }
 
+    public ArrayList<Message> getSelected() {
+        ArrayList<Message> messages = new ArrayList<>();
+        for (Message message : mMessages) {
+            if (message.isSelected()) {
+                messages.add(message);
+            }
+        }
+        return messages;
+    }
+
     public void swap(MessageList list) {
         mMessages.clear();
         mMessages.addAll(list);
@@ -133,12 +144,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }
     }
 
-    public void update(Message message) {
-        int position = mMessages.indexOf(message);
+    public int update(Message message, long id) {
+        int position = mMessages.find(id);
         if (position != -1) {
+            message.save();
             mMessages.set(position, message);
             notifyItemChanged(position);
         }
+        return position;
     }
 
     public void delete(Message message) {

@@ -36,6 +36,7 @@ public class Consts {
      */
     public static final String KEY_MESSAGES = "MESSAGES";
     public static final String KEY_MESSAGE = "MESSAGE";
+    public static final String KEY_MESSAGE_ID = "MESSAGE_ID";
 
     /**
      * Message types

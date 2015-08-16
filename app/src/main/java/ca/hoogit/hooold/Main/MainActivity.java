@@ -94,22 +94,23 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case Consts.RESULT_MESSAGE_CREATE:
-                    Log.d(TAG, "Message created resulted received");
+                case Consts.RESULT_MESSAGE_EDIT:
+                    Log.d(TAG, "Create activity has finished");
                     Message message = data.getParcelableExtra(Consts.KEY_MESSAGE);
                     MessageFragment frag = currentPage();
                     if (frag != null) {
-                        frag.add(message);
+                        boolean isEdit = Consts.RESULT_MESSAGE_EDIT == requestCode;
+                        if (isEdit) {
+                            frag.update(message, data.getLongExtra(Consts.KEY_MESSAGE_ID, -1));
+                        } else {
+                            frag.add(message);
+                        }
                     }
-                    break;
-                case Consts.RESULT_MESSAGE_EDIT:
-                    Log.d(TAG, "Message was edited");
-                    // TODO readd to the list
                     break;
             }
         } else {
             Log.i(TAG, "Activity was canceled or failed");
         }
-        mPager.getAdapter().notifyDataSetChanged();
     }
 
     private MessageFragment currentPage() {
@@ -147,7 +148,7 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
     public void editItem(Message message) {
         Intent editIntent = new Intent(this, CreateActivity.class);
         editIntent.setAction(Consts.MESSAGE_EDIT);
-        editIntent.putExtra(Consts.KEY_MESSAGE, message);
+        editIntent.putExtra(Consts.KEY_MESSAGE_ID, message.getId());
         startActivityForResult(editIntent, Consts.RESULT_MESSAGE_EDIT);
     }
 }

@@ -43,6 +43,7 @@ public class CreateActivity extends BaseActivity
     @Bind(R.id.message) EditText mMessageText;
 
     private boolean mIsEdit;
+    private long mMessageId;
 
     private Calendar mScheduledDate;
 
@@ -79,6 +80,7 @@ public class CreateActivity extends BaseActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_create:
+            case R.id.action_edit:
                 List<Recipient> list = Recipient.chipsToRecipients(mContact.getRecipients());
 
                 if (isValid(list)) {
@@ -89,12 +91,11 @@ public class CreateActivity extends BaseActivity
 
                     Intent result = new Intent();
                     result.putExtra(Consts.KEY_MESSAGE, message);
+                    result.putExtra(Consts.KEY_MESSAGE_ID, mMessageId);
 
                     setResult(RESULT_OK, result);
                     finish();
                 }
-                return true;
-            case R.id.action_edit:
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -153,7 +154,9 @@ public class CreateActivity extends BaseActivity
         mContact.dismissDropDownOnItemSelected(true);
 
         if (mIsEdit) {
-            populate(getIntent().<Message>getParcelableExtra(Consts.KEY_MESSAGE));
+            mMessageId = getIntent().getExtras().getLong(Consts.KEY_MESSAGE_ID);
+            Message message = Message.findById(Message.class, mMessageId);
+            populate(message);
         }
     }
 

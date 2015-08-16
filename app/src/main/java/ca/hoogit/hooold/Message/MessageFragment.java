@@ -131,7 +131,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
         int menuId = R.menu.menu_scheduled_selected_multiple;
         List<Message> selected = new ArrayList<>();
         if (mAdapter != null) {
-            selected = Message.getSelected(mAdapter.getList());
+            selected = mAdapter.getSelected();
         }
         switch (selected.size()) {
             case 0:
@@ -163,6 +163,14 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
         }
     }
 
+    public void update(Message message, long id) {
+        if (mAdapter != null && id != -1) {
+            int position = mAdapter.update(message, id);
+            mRecyclerView.scrollToPosition(position);
+            toggleViews();
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -170,7 +178,11 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 delete();
                 return true;
             case R.id.action_edit:
-                reset();
+                List<Message> selected = mAdapter.getSelected();
+                if (selected != null && selected.size() == 1) {
+                    reset();
+                    mListener.editItem(selected.get(0));
+                }
                 return true;
             case R.id.action_send_now:
                 // TODO Implement sending message immediately
@@ -181,7 +193,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     }
 
     public void reset() {
-        List<Message> list = Message.getSelected(mAdapter.getList());
+        List<Message> list = mAdapter.getSelected();
         mAdapter.unSelect(list);
         getActivity().invalidateOptionsMenu();
         mListener.itemSelected(false);
