@@ -36,10 +36,9 @@ import ca.hoogit.hooold.Utils.Consts;
 
 /**
  * @author jordon
- *
- * Date    11/08/15
- * Description
- *
+ *         <p/>
+ *         Date    11/08/15
+ *         Description
  */
 @Table
 public class Message extends SugarRecord implements Parcelable, Comparable<Message> {
@@ -51,9 +50,12 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     private int type; // TODO rename to status add type (facebook,twitter,etc)
     private String message;
 
-    @Ignore private boolean selected;
-    @Ignore private boolean wasSelected;
-    @Ignore private List<Recipient> recipients;
+    @Ignore
+    private boolean selected;
+    @Ignore
+    private boolean wasSelected;
+    @Ignore
+    private List<Recipient> recipients;
 
     public Message() {
     }
@@ -101,11 +103,17 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     public List<RecipientEntry> getRecipientEntries() {
         List<RecipientEntry> list = new ArrayList<>();
         for (Recipient recipient : this.getRecipients()) {
-            RecipientEntry entry = RecipientEntry.constructGeneratedEntry(
-                    recipient.getName(),
-                    recipient.getPhone(),
-                    Uri.parse(recipient.getPictureUrl()),
-                    true);
+            RecipientEntry entry;
+            if (recipient.getPictureUrl() != null) {
+                entry = RecipientEntry.constructGeneratedEntry(
+                            recipient.getName(),
+                            recipient.getPhone(),
+                            Uri.parse(recipient.getPictureUrl()),
+                            true);
+            } else {
+                entry = RecipientEntry.constructGeneratedEntry(
+                        recipient.getName(), recipient.getPhone(), true);
+            }
             list.add(entry);
         }
         return list;
@@ -197,6 +205,13 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     }
 
     public void setRecipients(List<Recipient> recipients) {
+        if (this.recipients != null) {
+            for (Recipient recipient : this.recipients) {
+                if (!recipients.contains(recipient)) {
+                    recipient.delete();
+                }
+            }
+        }
         this.recipients = recipients;
     }
 

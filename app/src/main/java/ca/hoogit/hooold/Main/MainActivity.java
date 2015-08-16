@@ -101,7 +101,8 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
                     if (frag != null) {
                         boolean isEdit = Consts.RESULT_MESSAGE_EDIT == requestCode;
                         if (isEdit) {
-                            frag.update(message, data.getLongExtra(Consts.KEY_MESSAGE_ID, -1));
+                            message.setId(data.getLongExtra(Consts.KEY_MESSAGE_ID, -1));
+                            frag.update(message);
                         } else {
                             frag.add(message);
                         }

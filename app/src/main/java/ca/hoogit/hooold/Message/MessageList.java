@@ -37,6 +37,14 @@ public class MessageList extends ArrayList<Message> {
         return added;
     }
 
+    public Message set(int index, Message object, boolean sort) {
+        Message set = super.set(index, object);
+        if (sort) {
+            this.sort();
+        }
+        return set;
+    }
+
     public boolean add(Message object, boolean sort) {
         boolean added = super.add(object);
         if (sort) {
@@ -47,7 +55,7 @@ public class MessageList extends ArrayList<Message> {
 
     public void sort() {
         Collections.sort(this);
-        Collections.reverse(this);
+        //Collections.reverse(this);
     }
 
     public void sort(boolean ascending) {
@@ -57,10 +65,10 @@ public class MessageList extends ArrayList<Message> {
         }
     }
 
-    public int find(long id) {
+    public int find(Message message) {
         int position = -1;
         for (Message m : this) {
-            if (m.getId().equals(id)) {
+            if (m.getId().equals(message.getId())) {
                 position = this.indexOf(m);
                 break;
             }

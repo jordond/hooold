@@ -163,9 +163,9 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
         }
     }
 
-    public void update(Message message, long id) {
-        if (mAdapter != null && id != -1) {
-            int position = mAdapter.update(message, id);
+    public void update(Message message) {
+        if (mAdapter != null) {
+            int position = mAdapter.update(message);
             mRecyclerView.scrollToPosition(position);
             toggleViews();
         }

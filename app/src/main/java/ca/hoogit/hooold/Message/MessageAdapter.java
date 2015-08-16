@@ -144,12 +144,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }
     }
 
-    public int update(Message message, long id) {
-        int position = mMessages.find(id);
+    public int update(Message message) {
+        int position = mMessages.find(message);
         if (position != -1) {
             message.save();
-            mMessages.set(position, message);
-            notifyItemChanged(position);
+            message = mMessages.set(position, message, true);
+            notifyItemChanged(mMessages.indexOf(message));
         }
         return position;
     }

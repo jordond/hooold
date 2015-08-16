@@ -21,7 +21,9 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.Bind;
@@ -44,6 +46,7 @@ public class CreateActivity extends BaseActivity
 
     private boolean mIsEdit;
     private long mMessageId;
+    private Message mMessage;
 
     private Calendar mScheduledDate;
 
@@ -84,13 +87,17 @@ public class CreateActivity extends BaseActivity
                 List<Recipient> list = Recipient.chipsToRecipients(mContact.getRecipients());
 
                 if (isValid(list)) {
-                    Message message = new Message(mScheduledDate.getTime());
-                    message.setRecipients(list);
+                    if (mMessage == null) {
+                        mMessage = new Message(mScheduledDate.getTime());
+                    } else {
+                        mMessage.setScheduleDate(mScheduledDate.getTime());
+                    }
+                    mMessage.setRecipients(list);
                     // TODO implement repeat message
-                    message.setMessage(mMessageText.getText().toString());
+                    mMessage.setMessage(mMessageText.getText().toString());
 
                     Intent result = new Intent();
-                    result.putExtra(Consts.KEY_MESSAGE, message);
+                    result.putExtra(Consts.KEY_MESSAGE, mMessage);
                     result.putExtra(Consts.KEY_MESSAGE_ID, mMessageId);
 
                     setResult(RESULT_OK, result);
@@ -157,6 +164,8 @@ public class CreateActivity extends BaseActivity
             mMessageId = getIntent().getExtras().getLong(Consts.KEY_MESSAGE_ID);
             Message message = Message.findById(Message.class, mMessageId);
             populate(message);
+        } else {
+            setDate(new Date());
         }
     }
 
@@ -164,9 +173,16 @@ public class CreateActivity extends BaseActivity
         if (message != null) {
             List<RecipientEntry> recipients = message.getRecipientEntries();
             mContact.setRecipientEntries(recipients);
+            setDate(message.getScheduleDate());
             mDate.setText(HoooldUtils.toFancyDate(message.getScheduleDate()));
             mMessageText.setText(message.getMessage());
+            mMessage = message;
         }
+    }
+
+    public void setDate(Date date) {
+        mScheduledDate = Calendar.getInstance();
+        mScheduledDate.setTime(date);
     }
 
     @OnClick(R.id.date)
@@ -174,14 +190,13 @@ public class CreateActivity extends BaseActivity
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 
-        Calendar now = Calendar.getInstance();
         DatePickerDialog dpd = DatePickerDialog.newInstance(
                 CreateActivity.this,
-                now.get(Calendar.YEAR),
-                now.get(Calendar.MONTH),
-                now.get(Calendar.DAY_OF_MONTH)
+                mScheduledDate.get(Calendar.YEAR),
+                mScheduledDate.get(Calendar.MONTH),
+                mScheduledDate.get(Calendar.DAY_OF_MONTH)
         );
-        dpd.setMinDate(now);
+        dpd.setMinDate(Calendar.getInstance());
         dpd.show(getFragmentManager(), Consts.FRAGMENT_TAG_DATETIME_PICKER);
     }
 
