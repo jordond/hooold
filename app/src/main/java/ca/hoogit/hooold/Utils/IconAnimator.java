@@ -85,6 +85,10 @@ public class IconAnimator {
         }
     }
 
+    public void test() {
+        flip(mIcon, ANIMATION_FLIP_REVERSE, false, ANIMATION_DURATION);
+    }
+
     public void animate(boolean start) {
         if (start) {
             start(ANIMATION_DURATION);

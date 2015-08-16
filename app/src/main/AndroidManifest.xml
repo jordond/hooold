@@ -42,10 +42,10 @@
             android:value="894d182b0e0c98734be894889a1e2b0bf7e4a957" />
         <meta-data
             android:name="DATABASE"
-            android:value="hooold_debug5.db" />
+            android:value="hooold_debug6.db" />
         <meta-data
             android:name="VERSION"
-            android:value="5" />
+            android:value="6" />
         <meta-data
             android:name="QUERY_LOG"
             android:value="true" />

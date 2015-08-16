@@ -93,10 +93,6 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(layoutManager);
-        DefaultItemAnimator animator = new DefaultItemAnimator();
-        animator.setAddDuration(Consts.ANIMATION_LIST_ITEM_DELAY);
-        animator.setRemoveDuration(Consts.ANIMATION_LIST_ITEM_DELAY);
-        mRecyclerView.setItemAnimator(animator);
 
         return mRootView = view;
     }
@@ -135,7 +131,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
         List<Message> selected = Message.getSelected(mAdapter.getList());
         switch (selected.size()) {
             case 0:
-                menuId = R.menu.menu_main;
+                menuId = R.menu.menu_scheduled;
                 break;
             case 1:
                 menuId = R.menu.menu_scheduled_selected_single;
@@ -160,7 +156,6 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
             int position = mAdapter.add(message);
             mRecyclerView.scrollToPosition(position);
             toggleViews();
-
         }
     }
 
@@ -190,6 +185,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
 
     private void delete() {
         final List<Message> selected = Message.getSelected(mAdapter.getList());
+        mDeletedMessages.clear();
         new MaterialDialog.Builder(getActivity())
                 .title(getResources().getString(R.string.message_delete_title))
                 .content(getResources().getString(R.string.message_delete_content)
@@ -224,7 +220,6 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                     @Override
                     public void onClick(View v) {
                         mAdapter.add(mDeletedMessages);
-                        mDeletedMessages.clear();
                     }
                 }).show();
     }

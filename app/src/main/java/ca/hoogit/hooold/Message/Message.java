@@ -49,11 +49,10 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     private boolean repeat;
     private int type; // TODO rename to status add type (facebook,twitter,etc)
     private String message;
-    private boolean selected;
-    private boolean wasSelected;
 
-    @Ignore
-    private List<Recipient> recipients;
+    @Ignore private boolean selected;
+    @Ignore private boolean wasSelected;
+    @Ignore private List<Recipient> recipients;
 
     public Message() {
     }

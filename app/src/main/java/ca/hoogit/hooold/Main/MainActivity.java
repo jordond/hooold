@@ -3,6 +3,7 @@ package ca.hoogit.hooold.Main;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -27,6 +28,7 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
 
     @Bind(R.id.viewpager) ViewPager mPager;
     @Bind(R.id.tabs) TabLayout mTabs;
+    @Bind(R.id.fab) FloatingActionButton mButton;
 
     @Override
     protected int getToolbarColor() {
@@ -83,12 +85,6 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
     @OnClick(R.id.fab)
     public void onClick(View view) {
         Intent createIntent = new Intent(this, CreateActivity.class);
-        try {
-            //noinspection ConstantConditions
-            currentPage().reset();
-        } catch (NullPointerException e) {
-            Log.e(TAG, "failed to reset current page adapter");
-        }
         createIntent.setAction(Consts.MESSAGE_CREATE);
         startActivityForResult(createIntent, Consts.RESULT_MESSAGE_CREATE);
     }
@@ -135,6 +131,11 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
             getSupportActionBar().setHomeButtonEnabled(isSelected);
         } catch (NullPointerException e) {
             Log.e(TAG, "Failed to set displayHomeAsUpEnabled");
+        }
+        if (isSelected) {
+            mButton.setVisibility(View.INVISIBLE);
+        } else {
+            mButton.setVisibility(View.VISIBLE);
         }
     }
 }

@@ -132,7 +132,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             Collections.sort(mMessages);
             Collections.reverse(mMessages);
             position = mMessages.indexOf(message);
-            notifyDataSetChanged();
+            notifyItemInserted(position);
         }
         return position;
     }
@@ -145,18 +145,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }
     }
 
-    public void delete(int position) {
-        Message message = mMessages.get(position);
-        if (message != null) {
-            message.delete();
-            mMessages.remove(position);
-            notifyItemRemoved(position);
-        }
-    }
-
     public void delete(Message message) {
         int position = mMessages.indexOf(message);
         if (position !=  -1) {
+            message.setSelected(false);
+            message.setWasSelected(false);
             message.delete();
             mMessages.remove(message);
             notifyItemRemoved(position);
