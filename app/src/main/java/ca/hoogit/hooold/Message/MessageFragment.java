@@ -231,5 +231,6 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
 
     public interface IMessageInteraction {
         void itemSelected(boolean isSelected);
+        void editItem(Message message);
     }
 }

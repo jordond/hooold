@@ -287,6 +287,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
             icon.setTag(this);
             iconReverse.setTag(this);
+            setIsRecyclable(false);
         }
 
         @Override

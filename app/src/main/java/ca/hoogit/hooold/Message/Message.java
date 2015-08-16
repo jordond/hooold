@@ -44,6 +44,7 @@ import ca.hoogit.hooold.Utils.Consts;
 @Table
 public class Message extends SugarRecord implements Parcelable, Comparable<Message> {
 
+    // TODO cache the title and the photo url, so i don't need to query database for each
     private Date created;
     private Date scheduleDate;
     private boolean repeat;
