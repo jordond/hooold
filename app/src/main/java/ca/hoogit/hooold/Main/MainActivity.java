@@ -101,9 +101,13 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
                         frag.add(message);
                     }
                     break;
+                case Consts.RESULT_MESSAGE_EDIT:
+                    Log.d(TAG, "Message was edited");
+                    // TODO readd to the list
+                    break;
             }
         } else {
-            Log.e(TAG, "Activity result failed");
+            Log.i(TAG, "Activity was canceled or failed");
         }
         mPager.getAdapter().notifyDataSetChanged();
     }
@@ -137,5 +141,13 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
         } else {
             mButton.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void editItem(Message message) {
+        Intent editIntent = new Intent(this, CreateActivity.class);
+        editIntent.setAction(Consts.MESSAGE_EDIT);
+        editIntent.putExtra(Consts.KEY_MESSAGE, message);
+        startActivityForResult(editIntent, Consts.RESULT_MESSAGE_EDIT);
     }
 }

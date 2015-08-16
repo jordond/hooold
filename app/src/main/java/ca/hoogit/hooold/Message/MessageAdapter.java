@@ -30,7 +30,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import ca.hoogit.hooold.R;
@@ -46,7 +45,7 @@ import ca.hoogit.hooold.Utils.IconAnimator;
  */
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
-    private ArrayList<Message> mMessages;
+    private MessageList mMessages;
     private Context mContext;
     private int mType;
     private OnCardAction mListener;
@@ -61,7 +60,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     }
 
     private void init() {
-        mMessages = new ArrayList<>();
+        mMessages = new MessageList();
         mUnusedColors = new ArrayList<>();
         mUsedColors = new ArrayList<>();
 
@@ -75,30 +74,21 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         this.mListener = listener;
     }
 
-    public ArrayList<Message> getList() {
+    public MessageList getList() {
         if (mMessages != null) {
             if (mMessages.isEmpty()) {
-                mMessages = new ArrayList<>();
+                mMessages = new MessageList();
             }
         }
         return mMessages;
     }
 
-    public boolean update(ArrayList<Message> messages) {
+    public boolean set(MessageList messages) {
         if (messages == null || messages.isEmpty()) {
             mMessages = Message.all(mType);
         } else {
             mMessages = messages;
         }
-        if (getItemCount() != 0) {
-            notifyDataSetChanged();
-            return true;
-        }
-        return false;
-    }
-
-    public boolean update() {
-        mMessages = Message.all(mType);
         if (getItemCount() != 0) {
             notifyDataSetChanged();
             return true;
@@ -118,7 +108,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }
     }
 
-    public void swap(ArrayList<Message> list) {
+    public void swap(MessageList list) {
         mMessages.clear();
         mMessages.addAll(list);
         notifyDataSetChanged();
@@ -129,8 +119,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         if (message != null) {
             message.save();
             mMessages.add(message);
-            Collections.sort(mMessages);
-            Collections.reverse(mMessages);
             position = mMessages.indexOf(message);
             notifyItemInserted(position);
         }
@@ -145,11 +133,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }
     }
 
+    public void update(Message message) {
+        int position = mMessages.indexOf(message);
+        if (position != -1) {
+            mMessages.set(position, message);
+            notifyItemChanged(position);
+        }
+    }
+
     public void delete(Message message) {
         int position = mMessages.indexOf(message);
         if (position !=  -1) {
-            message.setSelected(false);
-            message.setWasSelected(false);
             message.delete();
             mMessages.remove(message);
             notifyItemRemoved(position);
@@ -214,7 +208,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             mUsedColors.clear();
         }
 
-        //holder.selected = message.isSelected();
         if (message.isSelected()) {
             holder.iconReverse.setVisibility(View.VISIBLE);
             holder.selected = true;
@@ -224,6 +217,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             holder.animator.reset(true);
             message.setWasSelected(false);
             mMessages.set(position, message);
+        } else {
+            holder.animator.reset(holder.selected);
+            holder.selected = false;
         }
 
         GradientDrawable backgroundGradient = (GradientDrawable) holder.icon.getBackground();
@@ -244,7 +240,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 holder.icon.setImageBitmap(icon);
             }
         }
-
     }
 
     @Override
@@ -284,10 +279,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
             animator = new IconAnimator(mContext, icon, iconReverse);
             animator.setListener(this);
-
-            icon.setTag(this);
-            iconReverse.setTag(this);
-            setIsRecyclable(false);
         }
 
         @Override

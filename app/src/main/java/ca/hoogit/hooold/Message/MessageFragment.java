@@ -1,12 +1,9 @@
 package ca.hoogit.hooold.Message;
 
 import android.app.Activity;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toolbar;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -27,7 +23,6 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import ca.hoogit.hooold.BaseActivity;
 import ca.hoogit.hooold.R;
 import ca.hoogit.hooold.Utils.Consts;
 
@@ -42,7 +37,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     private IMessageInteraction mListener;
 
     private MessageAdapter mAdapter;
-    private ArrayList<Message> mMessages = new ArrayList<>();
+    private MessageList mMessages = new MessageList();
     private ArrayList<Message> mDeletedMessages = new ArrayList<>();
 
     public static MessageFragment newInstance(int type) {
@@ -79,7 +74,8 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState != null) {
-            mMessages = savedInstanceState.getParcelableArrayList(Consts.KEY_MESSAGES);
+            ArrayList<Message> test = savedInstanceState.getParcelableArrayList(Consts.KEY_MESSAGES);
+            mMessages = (MessageList) test;
         }
     }
 
@@ -93,6 +89,11 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setLayoutManager(layoutManager);
+        DefaultItemAnimator animator = new DefaultItemAnimator();
+        animator.setAddDuration(Consts.ANIMATION_LIST_ITEM_DELAY);
+        animator.setRemoveDuration(Consts.ANIMATION_LIST_ITEM_DELAY);
+        mRecyclerView.setItemAnimator(animator);
 
         return mRootView = view;
     }
@@ -119,7 +120,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
             mEmptyListView.setVisibility(View.GONE);
         }
 
-        mAdapter.update(mMessages);
+        mAdapter.set(mMessages);
         toggleViews();
     }
 
@@ -128,7 +129,10 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         int menuId = R.menu.menu_scheduled_selected_multiple;
-        List<Message> selected = Message.getSelected(mAdapter.getList());
+        List<Message> selected = new ArrayList<>();
+        if (mAdapter != null) {
+            selected = Message.getSelected(mAdapter.getList());
+        }
         switch (selected.size()) {
             case 0:
                 menuId = R.menu.menu_scheduled;

@@ -75,28 +75,32 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
      * DB Methods
      */
 
-    public static ArrayList<Message> all() {
-        return (ArrayList<Message>) Message.listAll(Message.class);
+    public static MessageList all() {
+        List<Message> list = Message.listAll(Message.class);
+        MessageList messages = new MessageList();
+        for (Message message : list) {
+            messages.add(message, false);
+        }
+        return messages;
     }
 
-    public static ArrayList<Message> all(int type) {
+    public static MessageList all(int type) {
         if (type == Consts.MESSAGE_TYPE_ALL) {
             return all();
         }
-        List<Message> sorted;
-        sorted = Message.find(Message.class, "type = ?", String.valueOf(type));
-        for (Message message : sorted) {
+        List<Message> list = Message.find(Message.class, "type = ?", String.valueOf(type));
+        MessageList messages = new MessageList();
+        for (Message message : list) {
             message.getRecipients();
+            messages.add(message, false);
         }
-
-        Collections.sort(sorted);
-        Collections.reverse(sorted);
-        return (ArrayList<Message>) sorted;
+        messages.sort();
+        return messages;
     }
 
     public List<RecipientEntry> getRecipientEntries() {
         List<RecipientEntry> list = new ArrayList<>();
-        for (Recipient recipient : this.recipients) {
+        for (Recipient recipient : this.getRecipients()) {
             RecipientEntry entry = RecipientEntry.constructGeneratedEntry(
                     recipient.getName(),
                     recipient.getPhone(),
@@ -119,6 +123,8 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
 
     @Override
     public long save() {
+        this.selected = false;
+        this.wasSelected = false;
         long id = super.save();
         if (recipients == null) {
             recipients = Recipient.allRecipients(id);
@@ -138,6 +144,8 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
         for (Recipient recipient : this.recipients) {
             recipient.delete();
         }
+        this.selected = false;
+        this.wasSelected = false;
         return super.delete();
     }
 

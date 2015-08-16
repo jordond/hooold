@@ -6,6 +6,15 @@
         android:id="@+id/action_create"
         android:icon="@drawable/ic_action_content_send"
         android:orderInCategory="100"
+        android:visible="true"
         android:title="@string/action_create"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_edit"
+        android:icon="@drawable/ic_action_content_save"
+        android:orderInCategory="100"
+        android:visible="false"
+        android:title="@string/action_edit"
         app:showAsAction="always" />
 </menu>

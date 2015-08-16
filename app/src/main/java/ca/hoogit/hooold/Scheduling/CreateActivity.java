@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.design.widget.Snackbar;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 
 import com.android.ex.chips.BaseRecipientAdapter;
 import com.android.ex.chips.RecipientEditTextView;
+import com.android.ex.chips.RecipientEntry;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.RadialPickerLayout;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
@@ -40,7 +42,7 @@ public class CreateActivity extends BaseActivity
     @Bind(R.id.date) TextView mDate;
     @Bind(R.id.message) EditText mMessageText;
 
-    private String mAction;
+    private boolean mIsEdit;
 
     private Calendar mScheduledDate;
 
@@ -64,6 +66,14 @@ public class CreateActivity extends BaseActivity
         return true;
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        boolean result = super.onCreateOptionsMenu(menu);
+        menu.findItem(R.id.action_create).setVisible(!mIsEdit);
+        menu.findItem(R.id.action_edit).setVisible(mIsEdit);
+        return result;
+    }
+
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -83,6 +93,8 @@ public class CreateActivity extends BaseActivity
                     setResult(RESULT_OK, result);
                     finish();
                 }
+                return true;
+            case R.id.action_edit:
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -128,8 +140,10 @@ public class CreateActivity extends BaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAction = getIntent().getAction();
+        String mAction = getIntent().getAction();
         getToolbar().setTitle(mAction + getString(R.string.activity_create_title_suffix));
+
+        mIsEdit = mAction.equals(Consts.MESSAGE_EDIT);
 
         mContact.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
         BaseRecipientAdapter adapter = new BaseRecipientAdapter(
@@ -137,6 +151,19 @@ public class CreateActivity extends BaseActivity
         adapter.setShowMobileOnly(true);
         mContact.setAdapter(adapter);
         mContact.dismissDropDownOnItemSelected(true);
+
+        if (mIsEdit) {
+            populate(getIntent().<Message>getParcelableExtra(Consts.KEY_MESSAGE));
+        }
+    }
+
+    public void populate(Message message) {
+        if (message != null) {
+            List<RecipientEntry> recipients = message.getRecipientEntries();
+            mContact.setRecipientEntries(recipients);
+            mDate.setText(HoooldUtils.toFancyDate(message.getScheduleDate()));
+            mMessageText.setText(message.getMessage());
+        }
     }
 
     @OnClick(R.id.date)
