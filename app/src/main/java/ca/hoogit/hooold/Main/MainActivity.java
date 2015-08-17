@@ -1,13 +1,16 @@
 package ca.hoogit.hooold.Main;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +32,25 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
     @Bind(R.id.viewpager) ViewPager mPager;
     @Bind(R.id.tabs) TabLayout mTabs;
     @Bind(R.id.fab) FloatingActionButton mButton;
+
+    private BroadcastReceiver mSmsSentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int id2 = 3423;
+            Log.d(TAG, "");
+            switch (getResultCode()) {
+                case Activity.RESULT_OK:
+                    long id = intent.getLongExtra(Consts.KEY_MESSAGE_ID, -1);
+                    String recip = intent.getStringExtra(Consts.KEY_SMS_RECIPIENT_PHONE);
+                    int max = intent.getIntExtra(Consts.KEY_SMS_RECIPIENT_TOTAL, -1);
+                    int count = intent.getIntExtra(Consts.KEY_SMS_RECIPIENT_COUNT, -1);
+                    Log.d(TAG, "Message receiver MSG_IG: " + id + " PHONE: " + recip + " MSG: " + count + " of " + max);
+                    break;
+                default:
+                    Log.e(TAG, "Message was not sent for some reason. Code: " + getResultCode());
+            }
+        }
+    };
 
     @Override
     protected int getToolbarColor() {
@@ -71,6 +93,9 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setUpViews();
+
+        IntentFilter filter = new IntentFilter(Consts.INTENT_SMS_SENT);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mSmsSentReceiver, filter);
     }
 
     private void setUpViews() {

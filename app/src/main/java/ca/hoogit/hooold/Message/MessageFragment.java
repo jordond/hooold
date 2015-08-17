@@ -1,6 +1,9 @@
 package ca.hoogit.hooold.Message;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -120,6 +123,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
             mEmptyListView.setVisibility(View.GONE);
         }
 
+
         mAdapter.set(mMessages);
         toggleViews();
     }
@@ -178,13 +182,17 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 delete();
                 return true;
             case R.id.action_edit:
-                List<Message> selected = mAdapter.getSelected();
+                List<Message> selected = mAdapter.getSelected(); //TODO put at top?
                 if (selected != null && selected.size() == 1) {
                     reset();
                     mListener.editItem(selected.get(0));
                 }
                 return true;
             case R.id.action_send_now:
+                List<Message> test = mAdapter.getSelected(); //TODO put at top?
+                for (Message t : test) {
+                    t.toSms().send(getActivity());
+                }
                 // TODO Implement sending message immediately
                 Log.d(TAG, "TODO implement sending message immediately");
                 return true;
@@ -200,7 +208,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     }
 
     private void delete() {
-        final List<Message> selected = Message.getSelected(mAdapter.getList());
+        final List<Message> selected = mAdapter.getSelected();
         mDeletedMessages.clear();
         new MaterialDialog.Builder(getActivity())
                 .title(getResources().getString(R.string.message_delete_title))

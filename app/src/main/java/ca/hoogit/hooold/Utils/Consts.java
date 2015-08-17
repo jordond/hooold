@@ -38,6 +38,11 @@ public class Consts {
     public static final String KEY_MESSAGE = "MESSAGE";
     public static final String KEY_MESSAGE_ID = "MESSAGE_ID";
     public static final String KEY_MESSAGE_SMS = "MESSAGE_SMS";
+    public static final String KEY_SMS_PART = "MESSAGE_PART";
+    public static final String KEY_SMS_PARTS = "MESSAGE_PARTS";
+    public static final String KEY_SMS_RECIPIENT_TOTAL = "RECIPIENT_TOTAL";
+    public static final String KEY_SMS_RECIPIENT_PHONE = "RECIPIENT_PHONE";
+    public static final String KEY_SMS_RECIPIENT_COUNT = "RECIPIENT_COUNT";
 
     /**
      * Service Actions
@@ -45,6 +50,13 @@ public class Consts {
     public static final String ACTION_SCHEDULE_ADD = "ca.hoogit.hooold.Scheduling.action.ADD";
     public static final String ACTION_SCHEDULE_DELETE = "ca.hoogit.hooold.Scheduling.action.DELETE";
     public static final String ACTION_SCHEDULE_SEND = "ca.hoogit.hooold.Scheduling.action.SEND";
+
+    /**
+     * Intent Actions
+     */
+    public static final String INTENT_SMS_SEND = "SMS_SEND";
+    public static final String INTENT_SMS_SENT = "SMS_SENT";
+    public static final String INTENT_SMS_DELIVERED = "SMS_DELIVERED";
 
     /**
      * Message types
@@ -71,9 +83,13 @@ public class Consts {
      */
     public static final long ANIMATION_LIST_ITEM_DELAY = 1000L;
 
-
     /**
      * Fragment tags
      */
     public static final String FRAGMENT_TAG_DATETIME_PICKER = "DateTimePicker";
+
+    /**
+     * Misc
+     */
+    public static final int MAX_SMS_LENGTH = 160;
 }
