@@ -37,6 +37,14 @@ public class Consts {
     public static final String KEY_MESSAGES = "MESSAGES";
     public static final String KEY_MESSAGE = "MESSAGE";
     public static final String KEY_MESSAGE_ID = "MESSAGE_ID";
+    public static final String KEY_MESSAGE_SMS = "MESSAGE_SMS";
+
+    /**
+     * Service Actions
+     */
+    public static final String ACTION_SCHEDULE_ADD = "ca.hoogit.hooold.Scheduling.action.ADD";
+    public static final String ACTION_SCHEDULE_DELETE = "ca.hoogit.hooold.Scheduling.action.DELETE";
+    public static final String ACTION_SCHEDULE_SEND = "ca.hoogit.hooold.Scheduling.action.SEND";
 
     /**
      * Message types

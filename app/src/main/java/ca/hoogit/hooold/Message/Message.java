@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import ca.hoogit.hooold.Scheduling.Sms;
 import ca.hoogit.hooold.Utils.Consts;
 
 /**
@@ -71,6 +72,18 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
         this.type = Consts.MESSAGE_TYPE_SCHEDULED;
         this.scheduleDate = scheduleDate;
         this.recipients = recipients;
+    }
+
+    public Sms toSms() {
+        if (getRecipients().size() == 1) {
+            return new Sms(getId(), this.recipients.get(0).getPhone(), this.message);
+        } else {
+            List<String> phoneNumbs = new ArrayList<>();
+            for (Recipient recipient : this.recipients) {
+                phoneNumbs.add(recipient.getPhone());
+            }
+            return new Sms(getId(), phoneNumbs, this.message);
+        }
     }
 
     /**

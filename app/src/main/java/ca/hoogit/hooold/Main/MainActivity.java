@@ -70,7 +70,6 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setUpViews();
     }
 

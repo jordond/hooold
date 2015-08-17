@@ -201,7 +201,6 @@ public class CreateActivity extends BaseActivity
 
     @OnClick(R.id.date)
     public void dateOnClick(View v) {
-
         hideKeyboard();
         DatePickerDialog dpd = DatePickerDialog.newInstance(
                 CreateActivity.this,
