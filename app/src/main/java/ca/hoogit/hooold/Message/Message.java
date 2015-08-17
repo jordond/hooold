@@ -17,7 +17,6 @@
  */
 package ca.hoogit.hooold.Message;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -28,8 +27,9 @@ import com.orm.dsl.Ignore;
 import com.orm.dsl.Table;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import ca.hoogit.hooold.Utils.Consts;
@@ -103,18 +103,7 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     public List<RecipientEntry> getRecipientEntries() {
         List<RecipientEntry> list = new ArrayList<>();
         for (Recipient recipient : this.getRecipients()) {
-            RecipientEntry entry;
-            if (recipient.getPictureUrl() != null) {
-                entry = RecipientEntry.constructGeneratedEntry(
-                            recipient.getName(),
-                            recipient.getPhone(),
-                            Uri.parse(recipient.getPictureUrl()),
-                            true);
-            } else {
-                entry = RecipientEntry.constructGeneratedEntry(
-                        recipient.getName(), recipient.getPhone(), true);
-            }
-            list.add(entry);
+            list.add(recipient.toRecipientEntry());
         }
         return list;
     }
@@ -212,7 +201,22 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
                 }
             }
         }
+        recipients = deDupe(recipients);
         this.recipients = recipients;
+    }
+
+    public List<Recipient> deDupe(List<Recipient> recipients) {
+        HashMap<String, Recipient> r = new HashMap<>();
+        for (Recipient recipient : recipients) {
+            if (!r.containsKey(recipient.getLookupKey())) {
+                r.put(recipient.getLookupKey(), recipient);
+            }
+        }
+        List<Recipient> deDuped = new ArrayList<>();
+        for (Recipient recipient : r.values()) {
+            deDuped.add(recipient);
+        }
+        return deDuped;
     }
 
     public boolean isSelected() {
