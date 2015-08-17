@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.design.widget.Snackbar;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -82,6 +83,7 @@ public class CreateActivity extends BaseActivity
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        hideKeyboard();
         switch (item.getItemId()) {
             case R.id.action_create:
             case R.id.action_edit:
@@ -107,6 +109,17 @@ public class CreateActivity extends BaseActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void hideKeyboard() {
+        try {
+            InputMethodManager inputMethodManager = (InputMethodManager)
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(
+                    getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        } catch (NullPointerException ex) {
+            Log.e(TAG, ex.getMessage());
+        }
     }
 
     public boolean isValid(List<Recipient> recipients) {
@@ -188,9 +201,8 @@ public class CreateActivity extends BaseActivity
 
     @OnClick(R.id.date)
     public void dateOnClick(View v) {
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 
+        hideKeyboard();
         DatePickerDialog dpd = DatePickerDialog.newInstance(
                 CreateActivity.this,
                 mScheduledDate.get(Calendar.YEAR),
