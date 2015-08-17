@@ -15,12 +15,16 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-package ca.hoogit.hooold;
+package ca.hoogit.hooold.Main;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+
+import ca.hoogit.hooold.Message.Message;
+import ca.hoogit.hooold.Message.MessageFragment;
+import ca.hoogit.hooold.R;
 
 /**
  * @author jordon
@@ -41,7 +45,7 @@ public class FragmentAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if (position < mTitles.length) {
-            return MessageFragment.newInstance(position, "Test " + position);
+            return MessageFragment.newInstance(position);
         }
         return null;
     }

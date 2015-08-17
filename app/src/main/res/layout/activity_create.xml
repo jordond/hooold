@@ -1,0 +1,63 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ca.hoogit.hooold.Scheduling.CreateActivity">
+
+    <include
+        android:id="@+id/appBar"
+        layout="@layout/app_bar" />
+
+    <LinearLayout
+        android:id="@+id/fields"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/appBar"
+        android:orientation="vertical">
+
+        <com.android.ex.chips.RecipientEditTextView
+            android:id="@+id/contact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:background="@android:color/transparent"
+            android:hint="To"
+            android:minHeight="58dp" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@color/md_grey_400" />
+
+        <TextView
+            android:id="@+id/date"
+            style="@android:style/Widget.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:background="@android:color/transparent"
+            android:hint="Date"
+            android:minHeight="58dp"
+            android:padding="@dimen/create_field_padding" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dip"
+            android:background="@color/md_grey_400" />
+
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/message"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/fields"
+        android:background="@android:color/transparent"
+        android:ems="10"
+        android:gravity="top"
+        android:hint="Message"
+        android:inputType="textMultiLine"
+        android:padding="@dimen/create_field_padding" />
+
+</RelativeLayout>

@@ -15,14 +15,13 @@
             android:background="@color/primary"
             android:minHeight="?attr/actionBarSize"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             tools:ignore="UnusedAttribute" />
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="38dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark" />
 
     </android.support.design.widget.AppBarLayout>
