@@ -43,6 +43,12 @@ public class Recipient extends SugarRecord implements Serializable {
     private String phone;
     private String pictureUrl;
 
+    // Needed for reconstruction
+    private long contactId;
+    private long dataId;
+    private int destinationType;
+    private String lookupKey;
+
     private long messageId;
 
     public Recipient() {
@@ -74,9 +80,19 @@ public class Recipient extends SugarRecord implements Serializable {
             if (re.getPhotoThumbnailUri() != null) {
                 r.setPictureUrl(re.getPhotoThumbnailUri().toString());
             }
+            r.setContactId(re.getContactId());
+            r.setDataId(re.getDataId());
+            r.setDestinationType(re.getDestinationType());
+            r.setLookupKey(re.getLookupKey());
             recipients.add(r);
         }
         return recipients;
+    }
+
+    public RecipientEntry toRecipientEntry() {
+        Uri photo = this.pictureUrl == null ? null : Uri.parse(this.pictureUrl);
+        return RecipientEntry.rebuildEntry(
+                name, phone, photo, contactId,dataId, destinationType, lookupKey);
     }
 
     public static List<Recipient> allRecipients(long id) {
@@ -84,10 +100,6 @@ public class Recipient extends SugarRecord implements Serializable {
         recipients = Recipient.find(Recipient.class, "message_Id = ?", String.valueOf(id));
 
         return recipients;
-    }
-
-    public RecipientEntry toRecipientEntry() {
-        return RecipientEntry.constructGeneratedEntry(name, phone, Uri.parse(pictureUrl), true);
     }
 
     public long getMessageId() {
@@ -120,5 +132,42 @@ public class Recipient extends SugarRecord implements Serializable {
 
     public void setPictureUrl(String pictureUrl) {
         this.pictureUrl = pictureUrl;
+    }
+
+    public void setMessageId(long messageId) {
+        this.messageId = messageId;
+    }
+
+    public long getContactId() {
+
+        return contactId;
+    }
+
+    public void setContactId(long contactId) {
+        this.contactId = contactId;
+    }
+
+    public long getDataId() {
+        return dataId;
+    }
+
+    public void setDataId(long dataId) {
+        this.dataId = dataId;
+    }
+
+    public int getDestinationType() {
+        return destinationType;
+    }
+
+    public void setDestinationType(int destinationType) {
+        this.destinationType = destinationType;
+    }
+
+    public String getLookupKey() {
+        return lookupKey;
+    }
+
+    public void setLookupKey(String lookupKey) {
+        this.lookupKey = lookupKey;
     }
 }

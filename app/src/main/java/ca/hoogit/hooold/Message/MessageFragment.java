@@ -236,6 +236,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                     @Override
                     public void onClick(View v) {
                         mAdapter.add(mDeletedMessages);
+                        toggleViews();
                     }
                 }).show();
     }
