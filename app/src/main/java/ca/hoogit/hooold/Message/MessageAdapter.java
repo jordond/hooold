@@ -127,7 +127,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     public int add(Message message) {
         int position = 0;
-        if (message != null) {
+        if (message != null && message.getCategory() == mCategory) {
             message.save();
             mMessages.add(message);
             position = mMessages.indexOf(message);
@@ -148,8 +148,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         int position = mMessages.find(message);
         if (position != -1) {
             message.save();
-            message = mMessages.set(position, message, true);
-            notifyItemChanged(mMessages.indexOf(message));
+            if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
+                mMessages.remove(position);
+                notifyItemRemoved(position);
+            } else {
+                message = mMessages.set(position, message, true);
+                notifyItemChanged(mMessages.indexOf(message));
+            }
+        } else {
+            add(message);
         }
         return position;
     }
@@ -190,37 +197,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         Message message = mMessages.get(position);
 
         holder.recipient.setText(message.getTitle());
-
-        List<Recipient> recipients = message.getRecipients();
-        if (recipients != null && !recipients.isEmpty()) {
-            String title = recipients.get(0).getName();
-            if (recipients.size() > 1) {
-                String extra = "+" + (recipients.size() - 1);
-                title = title + " " + extra;
-                holder.recipientNum.setText(extra);
-                holder.recipientNum.setVisibility(View.VISIBLE);
-                holder.hasExtraRecipient = true;
-            } else {
-                holder.recipientNum.setVisibility(View.INVISIBLE);
-                holder.hasExtraRecipient = false;
-            }
-            holder.recipient.setText(title);
-        } else {
-            recipients = new ArrayList<>();
-        }
+        holder.date.setText(HoooldUtils.toListDate(message.getScheduleDate()));
+        holder.message.setText(message.getMessage());
         if (message.isRepeat()) {
             holder.repeat.setVisibility(View.VISIBLE);
         }
-        holder.date.setText(HoooldUtils.toListDate(message.getScheduleDate()));
-        holder.message.setText(message.getMessage());
 
-        int color = mUnusedColors.get(0);
-        mUsedColors.add(color);
-        mUnusedColors.remove(0);
-
-        if (mUnusedColors.isEmpty()) {
-            mUnusedColors.addAll(mUsedColors);
-            mUsedColors.clear();
+        if (mCategory == Consts.MESSAGE_CATEGORY_SCHEDULED) {
+            setupScheduled(holder, message);
+        } else if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
+            setupRecent(holder, message);
         }
 
         if (message.isSelected()) {
@@ -237,11 +223,26 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             holder.selected = false;
         }
 
+        GradientDrawable gradient = (GradientDrawable) holder.iconReverse.getBackground();
+        gradient.setColor(mContext.getResources().getColor(Consts.SELECTED_ITEM_COLOR));
+    }
+
+    public void setupScheduled(ViewHolder holder, Message message) {
+        int recipCount = message.getRecipientCount();
+        if (recipCount >= 1) {
+            holder.recipientNum.setText("+" + recipCount);
+            holder.recipientNum.setVisibility(View.VISIBLE);
+            holder.hasExtraRecipient = true;
+        } else {
+            holder.recipientNum.setVisibility(View.INVISIBLE);
+            holder.hasExtraRecipient = false;
+        }
+
         GradientDrawable backgroundGradient = (GradientDrawable) holder.icon.getBackground();
-        backgroundGradient.setColor(color);
+        backgroundGradient.setColor(getIconColor());
 
         String url = "";
-        for (Recipient recipient : recipients) {
+        for (Recipient recipient : message.getRecipients()) {
             if (recipient.getPictureUrl() !=  null) {
                 url = recipient.getPictureUrl();
                 break;
@@ -255,30 +256,34 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 holder.icon.setImageBitmap(icon);
             }
         }
-
-        if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
-            if (message.getStatus() == Consts.MESSAGE_STATUS_SUCCESS) {
-                holder.status.setText("Success");
-            } else {
-                holder.status.setText("FAILED " + message.getErrorCode());
-            }
-        }
-    }
-
-    public void setupScheduled(ViewHolder holder, Message message) {
-        int recipCount = message.getRecipientCount();
-        if (recipCount >= 1) {
-            holder.recipientNum.setText("+" + recipCount);
-            holder.recipientNum.setVisibility(View.VISIBLE);
-            holder.hasExtraRecipient = true;
-        } else {
-            holder.recipientNum.setVisibility(View.INVISIBLE);
-            holder.hasExtraRecipient = false;
-        }
     }
 
     public void setupRecent(ViewHolder holder, Message message) {
+        GradientDrawable gradient = (GradientDrawable) holder.icon.getBackground();
+        int colorId = R.color.md_green_700;
+        int iconId = R.drawable.ic_action_thumb_up;
+        if (message.getStatus() == Consts.MESSAGE_STATUS_FAILED) {
+            holder.status.setText("FAILED " + message.getErrorCode());
+            colorId = R.color.md_red_700;
+            iconId = R.drawable.ic_alert_error;
+        } else {
+            holder.status.setText("Success");
+        }
+        gradient.setColor(mContext.getResources().getColor(colorId));
+        holder.icon.setImageResource(iconId);
 
+    }
+
+    public int getIconColor() {
+        int color = mUnusedColors.get(0);
+        mUsedColors.add(color);
+        mUnusedColors.remove(0);
+
+        if (mUnusedColors.isEmpty()) {
+            mUnusedColors.addAll(mUsedColors);
+            mUsedColors.clear();
+        }
+        return color;
     }
 
     @Override
@@ -297,6 +302,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
         boolean hasExtraRecipient;
         boolean selected;
+        boolean isScheduled;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -309,16 +315,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             recipientNum = (TextView) itemView.findViewById(R.id.recipient_num);
             status = (TextView) itemView.findViewById(R.id.status);
 
-            if (mCategory == Consts.MESSAGE_CATEGORY_SCHEDULED) {
+            isScheduled = Consts.MESSAGE_CATEGORY_SCHEDULED == mCategory;
+
+            animator = new IconAnimator(mContext, icon, iconReverse);
+            if (isScheduled) {
                 layout = (CardView) itemView.findViewById(R.id.card);
                 layout.setOnClickListener(this);
-
-                icon.setOnClickListener(this);
-                iconReverse.setOnClickListener(this);
-
-                animator = new IconAnimator(mContext, icon, iconReverse);
                 animator.setListener(this);
             }
+
+            icon.setOnClickListener(this);
+            iconReverse.setOnClickListener(this);
         }
 
         @Override
@@ -327,7 +334,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 case R.id.card:
                 case R.id.icon:
                 case R.id.icon_reverse:
-                    recipientNum.setVisibility(View.INVISIBLE);
+                    if (isScheduled) {
+                        recipientNum.setVisibility(View.INVISIBLE);
+                    }
                     animator.start(selected);
                     mMessages.get(getAdapterPosition()).setSelected(selected = !selected);
                     if (mListener != null) {

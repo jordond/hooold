@@ -44,6 +44,8 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     private MessageList mMessages = new MessageList();
     private ArrayList<Message> mDeletedMessages = new ArrayList<>();
 
+    private boolean isRecents;
+
     private BroadcastReceiver mMessageRefresh = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -71,6 +73,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 TAG += " S";
             } else {
                 TAG += " R";
+                isRecents = true;
             }
         }
     }
@@ -105,11 +108,15 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setLayoutManager(layoutManager);
         DefaultItemAnimator animator = new DefaultItemAnimator();
         animator.setAddDuration(Consts.ANIMATION_LIST_ITEM_DELAY);
         animator.setRemoveDuration(Consts.ANIMATION_LIST_ITEM_DELAY);
         mRecyclerView.setItemAnimator(animator);
+
+//        if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
+//            mRecyclerView.addItemDecoration(
+//                    new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
+//        }
 
         return mRootView = view;
     }
@@ -159,7 +166,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
         }
         switch (selected.size()) {
             case 0:
-                menuId = R.menu.menu_scheduled;
+                menuId = R.menu.menu_blank;
                 break;
             case 1:
                 menuId = R.menu.menu_scheduled_selected_single;
@@ -206,6 +213,9 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 if (selected != null && selected.size() == 1) {
                     reset();
                     mListener.editItem(selected.get(0));
+                    if (isRecents) {
+                        mAdapter.update(selected.get(0));
+                    }
                 }
                 return true;
             case R.id.action_send_now:

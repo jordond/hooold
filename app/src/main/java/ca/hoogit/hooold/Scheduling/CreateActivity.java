@@ -98,6 +98,7 @@ public class CreateActivity extends BaseActivity
                     mMessage.setRecipients(list);
                     // TODO implement repeat message
                     mMessage.setMessage(mMessageText.getText().toString());
+                    mMessage.setCategory(Consts.MESSAGE_CATEGORY_SCHEDULED);
 
                     Intent result = new Intent();
                     result.putExtra(Consts.KEY_MESSAGE, mMessage);

@@ -17,6 +17,8 @@
  */
 package ca.hoogit.hooold.Utils;
 
+import ca.hoogit.hooold.R;
+
 /**
  * @author jordon
  *
@@ -104,4 +106,5 @@ public class Consts {
      * Misc
      */
     public static final int MAX_SMS_LENGTH = 160;
+    public static final int SELECTED_ITEM_COLOR = R.color.md_grey_500;
 }

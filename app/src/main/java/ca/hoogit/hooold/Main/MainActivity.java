@@ -101,7 +101,7 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
                 case Consts.RESULT_MESSAGE_EDIT:
                     Log.d(TAG, "Create activity has finished");
                     Message message = data.getParcelableExtra(Consts.KEY_MESSAGE);
-                    MessageFragment frag = currentPage();
+                    MessageFragment frag = getPage(Consts.MESSAGE_CATEGORY_SCHEDULED);
                     if (frag != null) {
                         boolean isEdit = Consts.RESULT_MESSAGE_EDIT == requestCode;
                         if (isEdit) {
@@ -119,9 +119,13 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
     }
 
     private MessageFragment currentPage() {
+        return getPage(mPager.getCurrentItem());
+    }
+
+    private MessageFragment getPage(int position) {
         Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" +
-                R.id.viewpager + ":" + mPager.getCurrentItem());
-        if (mPager.getCurrentItem() == 0 && page != null) {
+                R.id.viewpager + ":" + position);
+        if (page != null) {
             return (MessageFragment) page;
         }
         return null;
@@ -132,7 +136,7 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
     public void itemSelected(boolean isSelected) {
         int color = getResources().getColor(R.color.primary);
         if (isSelected) {
-            color = getResources().getColor(R.color.md_grey_500);
+            color = getResources().getColor(Consts.SELECTED_ITEM_COLOR);
         }
         getToolbar().setBackgroundColor(color);
         mTabs.setBackgroundColor(color);

@@ -2,8 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_item_height"
-    android:clickable="true"
-    android:background="?attr/selectableItemBackground">
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -14,13 +14,13 @@
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_gravity="center"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
 
             <ImageView
                 android:id="@+id/icon"
-                android:layout_width="@dimen/message_icon_size"
-                android:layout_height="@dimen/message_icon_size"
+                android:layout_width="@dimen/message_icon_size_small"
+                android:layout_height="@dimen/message_icon_size_small"
                 android:layout_gravity="center"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
                 android:background="@drawable/circle"
@@ -28,8 +28,8 @@
 
             <ImageView
                 android:id="@+id/icon_reverse"
-                android:layout_width="@dimen/message_icon_size"
-                android:layout_height="@dimen/message_icon_size"
+                android:layout_width="@dimen/message_icon_size_small"
+                android:layout_height="@dimen/message_icon_size_small"
                 android:layout_gravity="center_horizontal"
                 android:background="@drawable/circle"
                 android:src="@drawable/ic_action_done"
@@ -51,11 +51,11 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
             <TextView
-                android:layout_width="wrap_content"
                 android:id="@+id/status"
-                android:text="TEST"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_height="wrap_content" />
+                android:text="TEST" />
 
             <TextView
                 android:id="@+id/date"
@@ -74,6 +74,14 @@
                 android:maxLines="1"
                 android:text="This is a sample message blah blah blah blah blah blah blah blah"
                 android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+
+            <ImageView
+                android:id="@+id/repeat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_action_autorenew"
+                android:visibility="invisible" />
 
         </RelativeLayout>
 

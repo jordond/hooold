@@ -173,10 +173,13 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
 
 
     public String getTitle() {
-        Recipient first = this.getRecipients().get(0);
-        String title = first.getName();
-        if (getRecipients().size() > 1) {
-            title += " +" + this.getRecipientCount();
+        String title = "";
+        if (this.getRecipients().size() > 0) {
+            Recipient first = this.getRecipients().get(0);
+            title = first.getName();
+            if (getRecipients().size() > 1) {
+                title += " +" + this.getRecipientCount();
+            }
         }
         return title;
     }
