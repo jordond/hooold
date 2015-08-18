@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import ca.hoogit.hooold.Main.MainActivity;
 import ca.hoogit.hooold.Utils.Consts;
 
 /**
@@ -82,10 +83,12 @@ public class Sms implements Serializable {
 
     public void single(Context context, SmsManager manager, String recipient, int count) {
         Intent sent = generateIntent(Consts.INTENT_SMS_SENT, recipient, count);
-        PendingIntent pendingSent = PendingIntent.getBroadcast(context, (int) id, sent, 0);
+        PendingIntent pendingSent = PendingIntent.getBroadcast(
+                context, (int) id, sent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent delivered = generateIntent(Consts.INTENT_SMS_DELIVERED, recipient, count);
-        PendingIntent pendingDelivered = PendingIntent.getBroadcast(context, (int)id, delivered, 0);
+        PendingIntent pendingDelivered = PendingIntent.getBroadcast(
+                context, (int)id, delivered, PendingIntent.FLAG_UPDATE_CURRENT);
 
         manager.sendTextMessage(recipient, null, messageBody, pendingSent, pendingDelivered);
     }
@@ -108,8 +111,6 @@ public class Sms implements Serializable {
         intent.putExtra(Consts.KEY_SMS_RECIPIENT_PHONE, recipient);
         intent.putExtra(Consts.KEY_SMS_RECIPIENT_COUNT, recipientCount);
         intent.putExtra(Consts.KEY_MESSAGE_ID, id);
-        intent.putExtra(Consts.KEY_SMS_PARTS, 1);
-        intent.putExtra(Consts.KEY_SMS_PART, 1);
         return intent;
     }
 
@@ -121,7 +122,8 @@ public class Sms implements Serializable {
             intent.putExtra(Consts.KEY_SMS_PARTS, partCount);
             intent.putExtra(Consts.KEY_SMS_PART, i);
 
-            PendingIntent pending = PendingIntent.getBroadcast(context, (int) id, intent, 0);
+            PendingIntent pending = PendingIntent.getBroadcast(
+                    context, (int) id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
             pendingIntents.add(pending);
         }
         return pendingIntents;

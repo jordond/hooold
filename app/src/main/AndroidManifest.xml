@@ -56,6 +56,19 @@
 
         <service
             android:name=".Scheduling.SchedulingService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".Scheduling.SentReceiver"
+            android:enabled="true"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="ca.hoogit.hooold.sms.SMS_SENT" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".Message.MessageService"
             android:exported="false" >
         </service>
     </application>

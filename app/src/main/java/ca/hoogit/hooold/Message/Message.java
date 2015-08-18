@@ -221,8 +221,8 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     public List<Recipient> deDupe(List<Recipient> recipients) {
         HashMap<String, Recipient> r = new HashMap<>();
         for (Recipient recipient : recipients) {
-            if (!r.containsKey(recipient.getLookupKey())) {
-                r.put(recipient.getLookupKey(), recipient);
+            if (!r.containsKey(recipient.getPhone())) {
+                r.put(recipient.getPhone(), recipient);
             }
         }
         List<Recipient> deDuped = new ArrayList<>();

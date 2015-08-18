@@ -33,25 +33,6 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
     @Bind(R.id.tabs) TabLayout mTabs;
     @Bind(R.id.fab) FloatingActionButton mButton;
 
-    private BroadcastReceiver mSmsSentReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int id2 = 3423;
-            Log.d(TAG, "");
-            switch (getResultCode()) {
-                case Activity.RESULT_OK:
-                    long id = intent.getLongExtra(Consts.KEY_MESSAGE_ID, -1);
-                    String recip = intent.getStringExtra(Consts.KEY_SMS_RECIPIENT_PHONE);
-                    int max = intent.getIntExtra(Consts.KEY_SMS_RECIPIENT_TOTAL, -1);
-                    int count = intent.getIntExtra(Consts.KEY_SMS_RECIPIENT_COUNT, -1);
-                    Log.d(TAG, "Message receiver MSG_IG: " + id + " PHONE: " + recip + " MSG: " + count + " of " + max);
-                    break;
-                default:
-                    Log.e(TAG, "Message was not sent for some reason. Code: " + getResultCode());
-            }
-        }
-    };
-
     @Override
     protected int getToolbarColor() {
         return getResources().getColor(R.color.primary);
@@ -89,13 +70,12 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
         }
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setUpViews();
-
-        IntentFilter filter = new IntentFilter(Consts.INTENT_SMS_SENT);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mSmsSentReceiver, filter);
     }
 
     private void setUpViews() {
