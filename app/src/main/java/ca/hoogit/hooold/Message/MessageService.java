@@ -3,15 +3,17 @@ package ca.hoogit.hooold.Message;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
-import android.widget.Switch;
+import android.util.Log;
 
 import ca.hoogit.hooold.Utils.Consts;
 
 public class MessageService extends IntentService {
 
-    public static void startMessageSent(Context context, long messageId) {
+    private static final String TAG = MessageService.class.getSimpleName();
+
+    public static void startMessageSuccess(Context context, long messageId) {
         Intent intent = new Intent(context, MessageService.class);
-        intent.setAction(Consts.ACTION_MESSAGE_SENT);
+        intent.setAction(Consts.ACTION_MESSAGE_SUCCESS);
         intent.putExtra(Consts.KEY_MESSAGE_ID, messageId);
         context.startService(intent);
     }
@@ -34,24 +36,39 @@ public class MessageService extends IntentService {
             final String action = intent.getAction();
             final long messageId = intent.getLongExtra(Consts.KEY_MESSAGE_ID, -1L);
             switch (action) {
-                case Consts.ACTION_MESSAGE_SENT:
-                    handleMessageSent(messageId);
+                case Consts.ACTION_MESSAGE_SUCCESS:
+                    Log.d(TAG, "Handling success message");
+                    handleMessageSuccess(messageId);
                     break;
                 case Consts.ACTION_MESSAGE_FAILED:
                     final int errorCode = intent.getIntExtra(Consts.KEY_MESSAGE_ERROR_CODE, 0);
+                    Log.d(TAG, "Handling failed message, code: " + errorCode);
                     handleMessageFailed(messageId, errorCode);
                     break;
             }
+            Intent refresh = new Intent(Consts.INTENT_MESSAGE_REFRESH);
+            refresh.putExtra(Consts.KEY_MESSAGE_ID, messageId);
+            getApplication().sendBroadcast(refresh);
+            Log.i(TAG, "Broadcasting refresh to all who will listen");
         }
     }
 
-    private void handleMessageSent(long messageId) {
-        // TODO: Handle action Foo
-        throw new UnsupportedOperationException("Not yet implemented");
+    private void handleMessageSuccess(long messageId) {
+        Message message = Message.findById(Message.class, messageId);
+        if (message != null) {
+            message.setCategory(Consts.MESSAGE_CATEGORY_RECENT);
+            message.setStatus(Consts.MESSAGE_STATUS_SUCCESS);
+            message.save(false);
+        }
     }
 
     private void handleMessageFailed(long messageId, int errorCode) {
-        // TODO: Handle action Baz
-        throw new UnsupportedOperationException("Not yet implemented");
+        Message message = Message.findById(Message.class, messageId);
+        if (message != null) {
+            message.setCategory(Consts.MESSAGE_CATEGORY_RECENT);
+            message.setStatus(Consts.MESSAGE_STATUS_FAILED);
+            message.setErrorCode(errorCode);
+            message.save(false);
+        }
     }
 }

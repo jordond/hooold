@@ -46,7 +46,7 @@ import ca.hoogit.hooold.Utils.IconAnimator;
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
     private Context mContext;
-    private int mType;
+    private int mCategory;
     private OnCardAction mListener;
 
     private MessageList mMessages;
@@ -54,9 +54,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     private ArrayList<Integer> mUnusedColors;
     private ArrayList<Integer> mUsedColors;
 
-    public MessageAdapter(Context context, int type) {
+    public MessageAdapter(Context context, int category) {
         mContext = context;
-        mType = type;
+        mCategory = category;
         init();
     }
 
@@ -86,7 +86,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     public boolean set(MessageList messages) {
         if (messages == null || messages.isEmpty()) {
-            mMessages = Message.all(mType);
+            mMessages = Message.all(mCategory);
         } else {
             mMessages = messages;
         }
@@ -177,7 +177,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         int layoutId = R.layout.item_message_scheduled;
-        if (mType == Consts.MESSAGE_TYPE_RECENT) {
+        if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
             layoutId = R.layout.item_message_recent;
         }
         View view = inflater.inflate(layoutId, parent, false);
@@ -188,6 +188,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Message message = mMessages.get(position);
+
+        holder.recipient.setText(message.getTitle());
 
         List<Recipient> recipients = message.getRecipients();
         if (recipients != null && !recipients.isEmpty()) {
@@ -253,6 +255,30 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 holder.icon.setImageBitmap(icon);
             }
         }
+
+        if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
+            if (message.getStatus() == Consts.MESSAGE_STATUS_SUCCESS) {
+                holder.status.setText("Success");
+            } else {
+                holder.status.setText("FAILED " + message.getErrorCode());
+            }
+        }
+    }
+
+    public void setupScheduled(ViewHolder holder, Message message) {
+        int recipCount = message.getRecipientCount();
+        if (recipCount >= 1) {
+            holder.recipientNum.setText("+" + recipCount);
+            holder.recipientNum.setVisibility(View.VISIBLE);
+            holder.hasExtraRecipient = true;
+        } else {
+            holder.recipientNum.setVisibility(View.INVISIBLE);
+            holder.hasExtraRecipient = false;
+        }
+    }
+
+    public void setupRecent(ViewHolder holder, Message message) {
+
     }
 
     @Override
@@ -265,7 +291,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
         CardView layout;
         ImageView icon, iconReverse, repeat;
-        TextView recipient, date, message, recipientNum;
+        TextView recipient, date, message, recipientNum, status;
 
         IconAnimator animator;
 
@@ -281,17 +307,18 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             date = (TextView) itemView.findViewById(R.id.date);
             message = (TextView) itemView.findViewById(R.id.message);
             recipientNum = (TextView) itemView.findViewById(R.id.recipient_num);
+            status = (TextView) itemView.findViewById(R.id.status);
 
-            if (mType == Consts.MESSAGE_TYPE_SCHEDULED) {
+            if (mCategory == Consts.MESSAGE_CATEGORY_SCHEDULED) {
                 layout = (CardView) itemView.findViewById(R.id.card);
                 layout.setOnClickListener(this);
+
+                icon.setOnClickListener(this);
+                iconReverse.setOnClickListener(this);
+
+                animator = new IconAnimator(mContext, icon, iconReverse);
+                animator.setListener(this);
             }
-
-            icon.setOnClickListener(this);
-            iconReverse.setOnClickListener(this);
-
-            animator = new IconAnimator(mContext, icon, iconReverse);
-            animator.setListener(this);
         }
 
         @Override

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -31,22 +32,29 @@ import ca.hoogit.hooold.Utils.Consts;
 
 public class MessageFragment extends Fragment implements MessageAdapter.OnCardAction {
 
-    private static final String TAG = MessageFragment.class.getSimpleName();
+    private static String TAG = MessageFragment.class.getSimpleName();
     @Bind(R.id.recycler) RecyclerView mRecyclerView;
     @Bind(R.id.empty_list) TextView mEmptyListView;
 
     private View mRootView;
-    private int mType;
+    private int mCategory;
     private IMessageInteraction mListener;
 
     private MessageAdapter mAdapter;
     private MessageList mMessages = new MessageList();
     private ArrayList<Message> mDeletedMessages = new ArrayList<>();
 
-    public static MessageFragment newInstance(int type) {
+    private BroadcastReceiver mMessageRefresh = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.e(TAG, "REACHED");
+        }
+    };
+
+    public static MessageFragment newInstance(int category) {
         MessageFragment fragment = new MessageFragment();
         Bundle args = new Bundle();
-        args.putInt(Consts.ARG_TYPE, type);
+        args.putInt(Consts.ARG_CATEGORY, category);
         fragment.setArguments(args);
         return fragment;
     }
@@ -58,7 +66,12 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mType = getArguments().getInt(Consts.ARG_TYPE);
+            mCategory = getArguments().getInt(Consts.ARG_CATEGORY);
+            if (mCategory == Consts.MESSAGE_CATEGORY_SCHEDULED) {
+                TAG += " S";
+            } else {
+                TAG += " R";
+            }
         }
     }
 
@@ -115,17 +128,24 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     @Override
     public void onResume() {
         super.onResume();
-
         if (mRecyclerView.getAdapter() == null) {
-            mAdapter = new MessageAdapter(getActivity(), mType);
+            mAdapter = new MessageAdapter(getActivity(), mCategory);
             mAdapter.setListener(this);
             mRecyclerView.setAdapter(mAdapter);
             mEmptyListView.setVisibility(View.GONE);
         }
 
+        IntentFilter filter = new IntentFilter(Consts.INTENT_MESSAGE_REFRESH);
+        getActivity().registerReceiver(mMessageRefresh, filter);
 
         mAdapter.set(mMessages);
         toggleViews();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unregisterReceiver(mMessageRefresh);
     }
 
     @Override

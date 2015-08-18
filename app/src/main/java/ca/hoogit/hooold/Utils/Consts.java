@@ -29,7 +29,7 @@ public class Consts {
     /**
      * Fragment argument keys
      */
-    public static final String ARG_TYPE = "TYPE";
+    public static final String ARG_CATEGORY = "CATEGORY";
 
     /**
      * Intent Extras, bundle, savedInstance keys
@@ -38,6 +38,7 @@ public class Consts {
     public static final String KEY_MESSAGE = "MESSAGE";
     public static final String KEY_MESSAGE_ID = "MESSAGE_ID";
     public static final String KEY_MESSAGE_SMS = "MESSAGE_SMS";
+    public static final String KEY_MESSAGE_STATUS = "MESSAGE_STATUS";
     public static final String KEY_MESSAGE_ERROR_CODE = "MESSAGE_ERROR_CODE";
     public static final String KEY_SMS_PART = "MESSAGE_PART";
     public static final String KEY_SMS_PARTS = "MESSAGE_PARTS";
@@ -52,7 +53,7 @@ public class Consts {
     public static final String ACTION_SCHEDULE_DELETE = "ca.hoogit.hooold.Scheduling.action.DELETE";
     public static final String ACTION_SCHEDULE_SEND = "ca.hoogit.hooold.Scheduling.action.SEND";
 
-    public static final String ACTION_MESSAGE_SENT = "ca.hoogit.hooold.Message.action.SENT";
+    public static final String ACTION_MESSAGE_SUCCESS = "ca.hoogit.hooold.Message.action.SUCCESS";
     public static final String ACTION_MESSAGE_FAILED = "ca.hoogit.hooold.Message.action.FAILED";
 
     /**
@@ -61,13 +62,20 @@ public class Consts {
     public static final String INTENT_SMS_SEND = "ca.hoogit.hooold.sms.SMS_SEND";
     public static final String INTENT_SMS_SENT = "ca.hoogit.hooold.sms.SMS_SENT";
     public static final String INTENT_SMS_DELIVERED = "ca.hoogit.hooold.sms.SMS_DELIVERED";
+    public static final String INTENT_MESSAGE_REFRESH = "ca.hoogit.hooold.message.REFRESH";
 
     /**
-     * Message types
-     */ // TODO rename to status
-    public static final int MESSAGE_TYPE_ALL = -1;
-    public static final int MESSAGE_TYPE_SCHEDULED = 0;
-    public static final int MESSAGE_TYPE_RECENT = 1;
+     * Message categories
+     */
+    public static final int MESSAGE_CATEGORY_ALL = -1;
+    public static final int MESSAGE_CATEGORY_SCHEDULED = 0;
+    public static final int MESSAGE_CATEGORY_RECENT = 1;
+
+    /**
+     * Message Statuses
+     */
+    public static final int MESSAGE_STATUS_SUCCESS = 4;
+    public static final int MESSAGE_STATUS_FAILED = -1;
 
     /**
      * Create Activity action code

@@ -123,7 +123,7 @@ public class Sms implements Serializable {
             intent.putExtra(Consts.KEY_SMS_PART, i);
 
             PendingIntent pending = PendingIntent.getBroadcast(
-                    context, (int) id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                    context, (int) id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             pendingIntents.add(pending);
         }
         return pendingIntents;
