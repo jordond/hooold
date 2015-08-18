@@ -46,10 +46,6 @@ public class MessageService extends IntentService {
                     handleMessageFailed(messageId, errorCode);
                     break;
             }
-            Intent refresh = new Intent(Consts.INTENT_MESSAGE_REFRESH);
-            refresh.putExtra(Consts.KEY_MESSAGE_ID, messageId);
-            getApplication().sendBroadcast(refresh);
-            Log.i(TAG, "Broadcasting refresh to all who will listen");
         }
     }
 
@@ -59,6 +55,7 @@ public class MessageService extends IntentService {
             message.setCategory(Consts.MESSAGE_CATEGORY_RECENT);
             message.setStatus(Consts.MESSAGE_STATUS_SUCCESS);
             message.save(false);
+            broadcast(messageId);
         }
     }
 
@@ -69,6 +66,14 @@ public class MessageService extends IntentService {
             message.setStatus(Consts.MESSAGE_STATUS_FAILED);
             message.setErrorCode(errorCode);
             message.save(false);
+            broadcast(messageId);
         }
+    }
+
+    private void broadcast(long messageId) {
+        Intent refresh = new Intent(Consts.INTENT_MESSAGE_REFRESH);
+        refresh.putExtra(Consts.KEY_MESSAGE_ID, messageId);
+        getApplication().sendBroadcast(refresh);
+        Log.i(TAG, "Broadcasting refresh to all who will listen");
     }
 }

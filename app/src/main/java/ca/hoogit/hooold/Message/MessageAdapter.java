@@ -180,6 +180,23 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }
     }
 
+    public boolean move(long messageId) {
+        int position = mMessages.find(messageId);
+        if (position != -1) {
+            mMessages.remove(position);
+            notifyItemRemoved(position);
+            return true;
+        } else {
+            Message message = Message.findById(Message.class, messageId);
+            if (message != null) {
+                mMessages.add(message);
+                notifyItemInserted(mMessages.indexOf(message));
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);

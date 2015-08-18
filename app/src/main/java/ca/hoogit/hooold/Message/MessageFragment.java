@@ -29,11 +29,12 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import ca.hoogit.hooold.R;
 import ca.hoogit.hooold.Utils.Consts;
+import ca.hoogit.hooold.Views.EmptyRecyclerView;
 
 public class MessageFragment extends Fragment implements MessageAdapter.OnCardAction {
 
-    private static String TAG = MessageFragment.class.getSimpleName();
-    @Bind(R.id.recycler) RecyclerView mRecyclerView;
+    private String TAG = MessageFragment.class.getSimpleName();
+    @Bind(R.id.recycler) EmptyRecyclerView mRecyclerView;
     @Bind(R.id.empty_list) TextView mEmptyListView;
 
     private View mRootView;
@@ -49,7 +50,11 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     private BroadcastReceiver mMessageRefresh = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e(TAG, "REACHED");
+            if (mAdapter != null) {
+                long id = intent.getLongExtra(Consts.KEY_MESSAGE_ID, -1L);
+                mAdapter.move(id);
+                //toggleViews();
+            }
         }
     };
 
@@ -139,14 +144,14 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
             mAdapter = new MessageAdapter(getActivity(), mCategory);
             mAdapter.setListener(this);
             mRecyclerView.setAdapter(mAdapter);
-            mEmptyListView.setVisibility(View.GONE);
+            mRecyclerView.setEmptyView(mEmptyListView);
         }
 
         IntentFilter filter = new IntentFilter(Consts.INTENT_MESSAGE_REFRESH);
         getActivity().registerReceiver(mMessageRefresh, filter);
 
         mAdapter.set(mMessages);
-        toggleViews();
+        //toggleViews();
     }
 
     @Override
@@ -190,7 +195,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
         if (mAdapter != null) {
             int position = mAdapter.add(message);
             mRecyclerView.scrollToPosition(position);
-            toggleViews();
+            //toggleViews();
         }
     }
 
@@ -198,7 +203,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
         if (mAdapter != null) {
             int position = mAdapter.update(message);
             mRecyclerView.scrollToPosition(position);
-            toggleViews();
+            //toggleViews();
         }
     }
 
@@ -223,6 +228,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 for (Message t : test) {
                     t.toSms().send(getActivity());
                 }
+                reset();
                 // TODO Implement sending message immediately
                 Log.d(TAG, "TODO implement sending message immediately");
                 return true;
@@ -254,7 +260,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                         mAdapter.delete(selected);
                         mDeletedMessages.addAll(selected);
                         showDeleteSnackbar();
-                        toggleViews();
+                        //toggleViews();
                         reset();
                     }
 
@@ -274,7 +280,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                     @Override
                     public void onClick(View v) {
                         mAdapter.add(mDeletedMessages);
-                        toggleViews();
+                        //toggleViews();
                     }
                 }).show();
     }
