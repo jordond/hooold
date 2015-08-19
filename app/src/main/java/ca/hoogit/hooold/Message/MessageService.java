@@ -74,6 +74,6 @@ public class MessageService extends IntentService {
         Intent refresh = new Intent(Consts.INTENT_MESSAGE_REFRESH);
         refresh.putExtra(Consts.KEY_MESSAGE_ID, messageId);
         getApplication().sendBroadcast(refresh);
-        Log.i(TAG, "Broadcasting refresh to all who will listen");
+        Log.i(TAG, "Broadcasting update cat to all who will listen");
     }
 }

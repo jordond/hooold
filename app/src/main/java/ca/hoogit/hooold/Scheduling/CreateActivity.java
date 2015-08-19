@@ -46,7 +46,6 @@ public class CreateActivity extends BaseActivity
     @Bind(R.id.date) TextView mDate;
     @Bind(R.id.message) EditText mMessageText;
 
-    private boolean mIsEdit;
     private long mMessageId;
     private Message mMessage;
 
@@ -72,21 +71,12 @@ public class CreateActivity extends BaseActivity
         return true;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        boolean result = super.onCreateOptionsMenu(menu);
-        menu.findItem(R.id.action_create).setVisible(!mIsEdit);
-        menu.findItem(R.id.action_edit).setVisible(mIsEdit);
-        return result;
-    }
-
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         hideKeyboard();
         switch (item.getItemId()) {
-            case R.id.action_create:
-            case R.id.action_edit:
+            case R.id.action_save:
                 List<Recipient> list = Recipient.chipsToRecipients(mContact.getRecipients());
 
                 if (isValid(list)) {
@@ -166,7 +156,7 @@ public class CreateActivity extends BaseActivity
         String mAction = getIntent().getAction();
         getToolbar().setTitle(mAction + getString(R.string.activity_create_title_suffix));
 
-        mIsEdit = mAction.equals(Consts.MESSAGE_EDIT);
+        boolean isEdit = mAction.equals(Consts.MESSAGE_EDIT);
 
         mContact.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
         BaseRecipientAdapter adapter = new BaseRecipientAdapter(
@@ -175,7 +165,7 @@ public class CreateActivity extends BaseActivity
         mContact.setAdapter(adapter);
         mContact.dismissDropDownOnItemSelected(true);
 
-        if (mIsEdit) {
+        if (isEdit) {
             mMessageId = getIntent().getExtras().getLong(Consts.KEY_MESSAGE_ID);
             Message message = Message.findById(Message.class, mMessageId);
             populate(message);

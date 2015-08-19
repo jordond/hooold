@@ -64,6 +64,7 @@ public class Consts {
     public static final String INTENT_SMS_SEND = "ca.hoogit.hooold.sms.SMS_SEND";
     public static final String INTENT_SMS_SENT = "ca.hoogit.hooold.sms.SMS_SENT";
     public static final String INTENT_SMS_DELIVERED = "ca.hoogit.hooold.sms.SMS_DELIVERED";
+    public static final String INTENT_MESSAGE_UPDATE_CATEGORY = "ca.hoogit.hooold.message.UPDATE";
     public static final String INTENT_MESSAGE_REFRESH = "ca.hoogit.hooold.message.REFRESH";
 
     /**

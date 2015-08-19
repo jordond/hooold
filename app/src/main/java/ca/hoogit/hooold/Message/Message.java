@@ -231,6 +231,8 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     public List<Recipient> getRecipients() {
         if (this.recipients == null) {
             return this.recipients = Recipient.allRecipients(this.getId());
+        } else if (this.recipients.isEmpty()) {
+            return this.recipients = Recipient.allRecipients(this.getId());
         }
         return recipients;
     }

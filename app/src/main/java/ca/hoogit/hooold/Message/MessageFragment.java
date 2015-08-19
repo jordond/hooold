@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -50,13 +51,23 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     private BroadcastReceiver mMessageRefresh = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.v(TAG, "onReceive: Inside broadcast receiver");
             if (mAdapter != null) {
                 long id = intent.getLongExtra(Consts.KEY_MESSAGE_ID, -1L);
-                mAdapter.move(id);
-                //toggleViews();
+                if (id != -1L) {
+                    Log.i(TAG, "onReceive: Has ID attempting a move");
+                    mAdapter.move(id);
+                } else {
+                    Log.i(TAG, "onReceive: Is a general refresh");
+                    refresh();
+                }
             }
         }
     };
+
+    public void refresh() {
+        mAdapter.set(null);
+    }
 
     public static MessageFragment newInstance(int category) {
         MessageFragment fragment = new MessageFragment();
@@ -118,11 +129,6 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
         animator.setRemoveDuration(Consts.ANIMATION_LIST_ITEM_DELAY);
         mRecyclerView.setItemAnimator(animator);
 
-//        if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
-//            mRecyclerView.addItemDecoration(
-//                    new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-//        }
-
         return mRootView = view;
     }
 
@@ -147,17 +153,16 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
             mRecyclerView.setEmptyView(mEmptyListView);
         }
 
-        IntentFilter filter = new IntentFilter(Consts.INTENT_MESSAGE_REFRESH);
-        getActivity().registerReceiver(mMessageRefresh, filter);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageRefresh,
+                new IntentFilter(Consts.INTENT_MESSAGE_REFRESH));
 
         mAdapter.set(mMessages);
-        //toggleViews();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        getActivity().unregisterReceiver(mMessageRefresh);
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageRefresh);
     }
 
     @Override
@@ -181,21 +186,10 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
         inflater.inflate(menuId, menu);
     }
 
-    private void toggleViews() {
-        if (mRecyclerView.getAdapter().getItemCount() != 0) {
-            mRecyclerView.setVisibility(View.VISIBLE);
-            mEmptyListView.setVisibility(View.GONE);
-        } else {
-            mRecyclerView.setVisibility(View.GONE);
-            mEmptyListView.setVisibility(View.VISIBLE);
-        }
-    }
-
     public void add(Message message) {
         if (mAdapter != null) {
             int position = mAdapter.add(message);
             mRecyclerView.scrollToPosition(position);
-            //toggleViews();
         }
     }
 
@@ -203,7 +197,6 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
         if (mAdapter != null) {
             int position = mAdapter.update(message);
             mRecyclerView.scrollToPosition(position);
-            //toggleViews();
         }
     }
 
@@ -218,9 +211,6 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 if (selected != null && selected.size() == 1) {
                     reset();
                     mListener.editItem(selected.get(0));
-                    if (isRecents) {
-                        mAdapter.update(selected.get(0));
-                    }
                 }
                 return true;
             case R.id.action_send_now:
@@ -229,16 +219,13 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                     t.toSms().send(getActivity());
                 }
                 reset();
-                // TODO Implement sending message immediately
-                Log.d(TAG, "TODO implement sending message immediately");
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     public void reset() {
-        List<Message> list = mAdapter.getSelected();
-        mAdapter.unSelect(list);
+        mAdapter.unSelect();
         getActivity().invalidateOptionsMenu();
         mListener.itemSelected(false);
     }
@@ -260,7 +247,6 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                         mAdapter.delete(selected);
                         mDeletedMessages.addAll(selected);
                         showDeleteSnackbar();
-                        //toggleViews();
                         reset();
                     }
 
@@ -280,7 +266,6 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                     @Override
                     public void onClick(View v) {
                         mAdapter.add(mDeletedMessages);
-                        //toggleViews();
                     }
                 }).show();
     }

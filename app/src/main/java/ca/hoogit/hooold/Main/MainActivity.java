@@ -65,6 +65,10 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
                     frag.reset();
                 }
                 return true;
+            case R.id.test:
+                Intent refresh = new Intent(Consts.INTENT_MESSAGE_REFRESH);
+                LocalBroadcastManager.getInstance(this).sendBroadcast(refresh);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -105,8 +109,10 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
                     if (frag != null) {
                         boolean isEdit = Consts.RESULT_MESSAGE_EDIT == requestCode;
                         if (isEdit) {
-                            message.setId(data.getLongExtra(Consts.KEY_MESSAGE_ID, -1));
-                            frag.update(message);
+                            long id = data.getLongExtra(Consts.KEY_MESSAGE_ID, -1);
+                            Intent refresh = new Intent(Consts.INTENT_MESSAGE_REFRESH);
+                            refresh.putExtra(Consts.KEY_MESSAGE_ID, id);
+                            LocalBroadcastManager.getInstance(this).sendBroadcast(refresh);
                         } else {
                             frag.add(message);
                         }

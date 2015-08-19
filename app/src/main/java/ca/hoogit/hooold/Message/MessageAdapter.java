@@ -23,6 +23,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,7 @@ import ca.hoogit.hooold.Utils.IconAnimator;
  */
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
+    private static final String TAG = MessageAdapter.class.getSimpleName();
     private Context mContext;
     private int mCategory;
     private OnCardAction mListener;
@@ -97,8 +99,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         return false;
     }
 
-    public void unSelect(List<Message> messages) {
-        for (Message message : messages) {
+    public void unSelect() {
+        for (Message message : getSelected()) {
             if (message.isSelected()) {
                 int position = mMessages.indexOf(message);
                 Message m = mMessages.get(position);
@@ -183,12 +185,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public boolean move(long messageId) {
         int position = mMessages.find(messageId);
         if (position != -1) {
+            Log.d(TAG, "move: Removing at position: " + position);
             mMessages.remove(position);
             notifyItemRemoved(position);
             return true;
         } else {
             Message message = Message.findById(Message.class, messageId);
-            if (message != null) {
+            if (message != null && message.getCategory() == mCategory) {
+                Log.d(TAG, "move: Adding message to list");
                 mMessages.add(message);
                 notifyItemInserted(mMessages.indexOf(message));
                 return true;
