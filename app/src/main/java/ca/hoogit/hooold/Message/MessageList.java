@@ -75,4 +75,15 @@ public class MessageList extends ArrayList<Message> {
         }
         return position;
     }
+
+    public int find(long id) {
+        int position = -1;
+        for (Message m : this) {
+            if (m.getId().equals(id)) {
+                position = this.indexOf(m);
+                break;
+            }
+        }
+        return position;
+    }
 }

@@ -19,8 +19,10 @@ package ca.hoogit.hooold;
 
 import android.app.Application;
 
+import com.crashlytics.android.Crashlytics;
 import com.orm.SugarContext;
 import com.orm.SugarDb;
+import io.fabric.sdk.android.Fabric;
 
 /**
  * @author jordon
@@ -33,6 +35,7 @@ public class HoooldApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
         SugarContext.init(this);
     }
 

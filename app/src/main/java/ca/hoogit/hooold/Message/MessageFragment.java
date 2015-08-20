@@ -1,9 +1,14 @@
 package ca.hoogit.hooold.Message;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,25 +30,52 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import ca.hoogit.hooold.R;
 import ca.hoogit.hooold.Utils.Consts;
+import ca.hoogit.hooold.Views.EmptyRecyclerView;
 
 public class MessageFragment extends Fragment implements MessageAdapter.OnCardAction {
 
-    private static final String TAG = MessageFragment.class.getSimpleName();
-    @Bind(R.id.recycler) RecyclerView mRecyclerView;
+    private String TAG = MessageFragment.class.getSimpleName();
+    @Bind(R.id.recycler) EmptyRecyclerView mRecyclerView;
     @Bind(R.id.empty_list) TextView mEmptyListView;
 
     private View mRootView;
-    private int mType;
+    private int mCategory;
     private IMessageInteraction mListener;
 
     private MessageAdapter mAdapter;
     private MessageList mMessages = new MessageList();
     private ArrayList<Message> mDeletedMessages = new ArrayList<>();
 
-    public static MessageFragment newInstance(int type) {
+    private boolean isRecents;
+
+    private BroadcastReceiver mMessageRefresh = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (mAdapter != null) {
+                long id = intent.getLongExtra(Consts.KEY_MESSAGE_ID, -1L);
+                if (id != -1L) {
+                    Log.i(TAG, "onReceive: Has ID attempting a move");
+                    if (mCategory == Consts.MESSAGE_CATEGORY_SCHEDULED) {
+                        Snackbar.make(mRecyclerView, "Message was sent",
+                                Snackbar.LENGTH_SHORT).show();
+                    }
+                    mAdapter.move(id);
+                } else {
+                    Log.i(TAG, "onReceive: Is a general refresh");
+                    refresh();
+                }
+            }
+        }
+    };
+
+    public void refresh() {
+        mAdapter.set(null);
+    }
+
+    public static MessageFragment newInstance(int category) {
         MessageFragment fragment = new MessageFragment();
         Bundle args = new Bundle();
-        args.putInt(Consts.ARG_TYPE, type);
+        args.putInt(Consts.ARG_CATEGORY, category);
         fragment.setArguments(args);
         return fragment;
     }
@@ -55,7 +87,13 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mType = getArguments().getInt(Consts.ARG_TYPE);
+            mCategory = getArguments().getInt(Consts.ARG_CATEGORY);
+            if (mCategory == Consts.MESSAGE_CATEGORY_SCHEDULED) {
+                TAG += " S";
+            } else {
+                TAG += " R";
+                isRecents = true;
+            }
         }
     }
 
@@ -89,7 +127,6 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setLayoutManager(layoutManager);
         DefaultItemAnimator animator = new DefaultItemAnimator();
         animator.setAddDuration(Consts.ANIMATION_LIST_ITEM_DELAY);
         animator.setRemoveDuration(Consts.ANIMATION_LIST_ITEM_DELAY);
@@ -112,54 +149,57 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     @Override
     public void onResume() {
         super.onResume();
-
         if (mRecyclerView.getAdapter() == null) {
-            mAdapter = new MessageAdapter(getActivity(), mType);
+            mAdapter = new MessageAdapter(getActivity(), mCategory);
             mAdapter.setListener(this);
             mRecyclerView.setAdapter(mAdapter);
-            mEmptyListView.setVisibility(View.GONE);
+            mRecyclerView.setEmptyView(mEmptyListView);
         }
 
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMessageRefresh,
+                new IntentFilter(Consts.INTENT_MESSAGE_REFRESH));
+
         mAdapter.set(mMessages);
-        toggleViews();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMessageRefresh);
     }
 
     @Override
     @SuppressWarnings("ConstantConditions")
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        int menuId = R.menu.menu_scheduled_selected_multiple;
+        int menuId = R.menu.menu_blank;
         List<Message> selected = new ArrayList<>();
         if (mAdapter != null) {
             selected = mAdapter.getSelected();
         }
-        switch (selected.size()) {
-            case 0:
-                menuId = R.menu.menu_scheduled;
-                break;
-            case 1:
+        if (mCategory == Consts.MESSAGE_CATEGORY_SCHEDULED) {
+            if (selected.size() == 1) {
                 menuId = R.menu.menu_scheduled_selected_single;
-                break;
+            } else if (selected.size() > 1) {
+                menuId = R.menu.menu_scheduled_selected_multiple;
+            }
+        } else if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
+            if (selected.size() == 1) {
+                menuId = R.menu.menu_recent_selected_single;
+            } else if (selected.size() > 1) {
+                menuId = R.menu.menu_recent_selected_multiple;
+            } else {
+                menuId = R.menu.menu_recent_none;
+            }
         }
         mListener.itemSelected(selected.size() > 0);
         inflater.inflate(menuId, menu);
-    }
-
-    private void toggleViews() {
-        if (mRecyclerView.getAdapter().getItemCount() != 0) {
-            mRecyclerView.setVisibility(View.VISIBLE);
-            mEmptyListView.setVisibility(View.GONE);
-        } else {
-            mRecyclerView.setVisibility(View.GONE);
-            mEmptyListView.setVisibility(View.VISIBLE);
-        }
     }
 
     public void add(Message message) {
         if (mAdapter != null) {
             int position = mAdapter.add(message);
             mRecyclerView.scrollToPosition(position);
-            toggleViews();
         }
     }
 
@@ -167,7 +207,6 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
         if (mAdapter != null) {
             int position = mAdapter.update(message);
             mRecyclerView.scrollToPosition(position);
-            toggleViews();
         }
     }
 
@@ -175,37 +214,44 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete:
-                delete();
+                delete(mAdapter.getSelected());
                 return true;
             case R.id.action_edit:
-                List<Message> selected = mAdapter.getSelected();
+                List<Message> selected = mAdapter.getSelected(); //TODO put at top?
                 if (selected != null && selected.size() == 1) {
                     reset();
                     mListener.editItem(selected.get(0));
                 }
                 return true;
             case R.id.action_send_now:
-                // TODO Implement sending message immediately
-                Log.d(TAG, "TODO implement sending message immediately");
+                List<Message> test = mAdapter.getSelected(); //TODO put at top?
+                for (Message t : test) {
+                    t.toSms().send(getActivity());
+                }
+                reset();
+                return true;
+            case R.id.action_clear:
+                delete(mAdapter.getList());
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     public void reset() {
-        List<Message> list = mAdapter.getSelected();
-        mAdapter.unSelect(list);
+        mAdapter.unSelect();
         getActivity().invalidateOptionsMenu();
         mListener.itemSelected(false);
     }
 
-    private void delete() {
-        final List<Message> selected = Message.getSelected(mAdapter.getList());
+    private void delete(final List<Message> messages) {
+        String content = getResources().getString(R.string.message_delete_content);
+        if (isRecents) {
+            content = getResources().getString(R.string.message_delete_content_recent);
+        }
         mDeletedMessages.clear();
         new MaterialDialog.Builder(getActivity())
                 .title(getResources().getString(R.string.message_delete_title))
-                .content(getResources().getString(R.string.message_delete_content)
-                        + " " + selected.size() + " messages will be deleted.")
+                .content(content + " " + messages.size() + " messages will be deleted.")
                 .positiveText(getResources().getString(R.string.message_delete_positive))
                 .negativeText(getResources().getString(R.string.message_delete_negative))
                 .autoDismiss(true)
@@ -213,10 +259,9 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         super.onPositive(dialog);
-                        mAdapter.delete(selected);
-                        mDeletedMessages.addAll(selected);
+                        mAdapter.delete(messages);
+                        mDeletedMessages.addAll(messages);
                         showDeleteSnackbar();
-                        toggleViews();
                         reset();
                     }
 
@@ -236,7 +281,6 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                     @Override
                     public void onClick(View v) {
                         mAdapter.add(mDeletedMessages);
-                        toggleViews();
                     }
                 }).show();
     }

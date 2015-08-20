@@ -17,6 +17,8 @@
  */
 package ca.hoogit.hooold.Utils;
 
+import ca.hoogit.hooold.R;
+
 /**
  * @author jordon
  *
@@ -29,7 +31,7 @@ public class Consts {
     /**
      * Fragment argument keys
      */
-    public static final String ARG_TYPE = "TYPE";
+    public static final String ARG_CATEGORY = "CATEGORY";
 
     /**
      * Intent Extras, bundle, savedInstance keys
@@ -37,13 +39,46 @@ public class Consts {
     public static final String KEY_MESSAGES = "MESSAGES";
     public static final String KEY_MESSAGE = "MESSAGE";
     public static final String KEY_MESSAGE_ID = "MESSAGE_ID";
+    public static final String KEY_MESSAGE_SMS = "MESSAGE_SMS";
+    public static final String KEY_MESSAGE_STATUS = "MESSAGE_STATUS";
+    public static final String KEY_MESSAGE_ERROR_CODE = "MESSAGE_ERROR_CODE";
+    public static final String KEY_SMS_PART = "MESSAGE_PART";
+    public static final String KEY_SMS_PARTS = "MESSAGE_PARTS";
+    public static final String KEY_SMS_RECIPIENT_TOTAL = "RECIPIENT_TOTAL";
+    public static final String KEY_SMS_RECIPIENT_PHONE = "RECIPIENT_PHONE";
+    public static final String KEY_SMS_RECIPIENT_COUNT = "RECIPIENT_COUNT";
 
     /**
-     * Message types
-     */ // TODO rename to status
-    public static final int MESSAGE_TYPE_ALL = -1;
-    public static final int MESSAGE_TYPE_SCHEDULED = 0;
-    public static final int MESSAGE_TYPE_RECENT = 1;
+     * Service Actions
+     */
+    public static final String ACTION_SCHEDULE_ADD = "ca.hoogit.hooold.Scheduling.action.ADD";
+    public static final String ACTION_SCHEDULE_DELETE = "ca.hoogit.hooold.Scheduling.action.DELETE";
+    public static final String ACTION_SCHEDULE_SEND = "ca.hoogit.hooold.Scheduling.action.SEND";
+
+    public static final String ACTION_MESSAGE_SUCCESS = "ca.hoogit.hooold.Message.action.SUCCESS";
+    public static final String ACTION_MESSAGE_FAILED = "ca.hoogit.hooold.Message.action.FAILED";
+
+    /**
+     * Intent Actions
+     */
+    public static final String INTENT_SMS_SEND = "ca.hoogit.hooold.sms.SMS_SEND";
+    public static final String INTENT_SMS_SENT = "ca.hoogit.hooold.sms.SMS_SENT";
+    public static final String INTENT_SMS_DELIVERED = "ca.hoogit.hooold.sms.SMS_DELIVERED";
+    public static final String INTENT_MESSAGE_UPDATE_CATEGORY = "ca.hoogit.hooold.message.UPDATE";
+    public static final String INTENT_MESSAGE_REFRESH = "ca.hoogit.hooold.message.REFRESH";
+
+    /**
+     * Message categories
+     */
+    public static final int MESSAGE_CATEGORY_ALL = -1;
+    public static final int MESSAGE_CATEGORY_SCHEDULED = 0;
+    public static final int MESSAGE_CATEGORY_RECENT = 1;
+
+    /**
+     * Message Statuses
+     */
+    public static final int MESSAGE_STATUS_SUCCESS = 4;
+    public static final int MESSAGE_STATUS_FAILED = -1;
 
     /**
      * Create Activity action code
@@ -63,9 +98,14 @@ public class Consts {
      */
     public static final long ANIMATION_LIST_ITEM_DELAY = 1000L;
 
-
     /**
      * Fragment tags
      */
     public static final String FRAGMENT_TAG_DATETIME_PICKER = "DateTimePicker";
+
+    /**
+     * Misc
+     */
+    public static final int MAX_SMS_LENGTH = 160;
+    public static final int SELECTED_ITEM_COLOR = R.color.md_grey_500;
 }

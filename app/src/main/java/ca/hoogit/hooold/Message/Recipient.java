@@ -18,6 +18,7 @@
 package ca.hoogit.hooold.Message;
 
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 import com.android.ex.chips.RecipientEntry;
 import com.android.ex.chips.recipientchip.DrawableRecipientChip;
@@ -37,7 +38,7 @@ import java.util.List;
  */
 
 @Table
-public class Recipient extends SugarRecord implements Serializable {
+public class Recipient extends SugarRecord implements Serializable{
 
     private String name;
     private String phone;
@@ -169,5 +170,23 @@ public class Recipient extends SugarRecord implements Serializable {
 
     public void setLookupKey(String lookupKey) {
         this.lookupKey = lookupKey;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
+        final Recipient other = (Recipient) o;
+        return !((this.getPhone() == null) ? (other.getPhone() != null) :
+                !this.getPhone().equals(other.getPhone()));
+    }
+
+    @Override
+    public boolean delete() {
+        return super.delete();
     }
 }

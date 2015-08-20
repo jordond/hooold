@@ -23,6 +23,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,8 +46,9 @@ import ca.hoogit.hooold.Utils.IconAnimator;
  */
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
+    private static final String TAG = MessageAdapter.class.getSimpleName();
     private Context mContext;
-    private int mType;
+    private int mCategory;
     private OnCardAction mListener;
 
     private MessageList mMessages;
@@ -54,9 +56,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     private ArrayList<Integer> mUnusedColors;
     private ArrayList<Integer> mUsedColors;
 
-    public MessageAdapter(Context context, int type) {
+    public MessageAdapter(Context context, int category) {
         mContext = context;
-        mType = type;
+        mCategory = category;
         init();
     }
 
@@ -86,7 +88,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     public boolean set(MessageList messages) {
         if (messages == null || messages.isEmpty()) {
-            mMessages = Message.all(mType);
+            mMessages = Message.all(mCategory);
         } else {
             mMessages = messages;
         }
@@ -97,8 +99,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         return false;
     }
 
-    public void unSelect(List<Message> messages) {
-        for (Message message : messages) {
+    public void unSelect() {
+        for (Message message : getSelected()) {
             if (message.isSelected()) {
                 int position = mMessages.indexOf(message);
                 Message m = mMessages.get(position);
@@ -127,8 +129,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
     public int add(Message message) {
         int position = 0;
-        if (message != null) {
-            message.save();
+        if (message != null && message.getCategory() == mCategory) {
             mMessages.add(message);
             position = mMessages.indexOf(message);
             notifyItemInserted(position);
@@ -140,6 +141,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         if (messages != null) {
             for (Message message : messages) {
                 add(message);
+                message.save();
             }
         }
     }
@@ -147,9 +149,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public int update(Message message) {
         int position = mMessages.find(message);
         if (position != -1) {
-            message.save();
-            message = mMessages.set(position, message, true);
-            notifyItemChanged(mMessages.indexOf(message));
+            if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
+                mMessages.remove(position);
+                notifyItemRemoved(position);
+            } else {
+                message = mMessages.set(position, message, true);
+                notifyItemChanged(mMessages.indexOf(message));
+            }
+        } else {
+            if (mCategory == Consts.MESSAGE_CATEGORY_SCHEDULED) {
+                add(message);
+            }
         }
         return position;
     }
@@ -173,11 +183,30 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }
     }
 
+    public boolean move(long messageId) {
+        int position = mMessages.find(messageId);
+        if (position != -1) {
+            Log.d(TAG, "move: Removing at position: " + position);
+            mMessages.remove(position);
+            notifyItemRemoved(position);
+            return true;
+        } else {
+            Message message = Message.findById(Message.class, messageId);
+            if (message != null && message.getCategory() == mCategory) {
+                Log.d(TAG, "move: Adding message to list");
+                mMessages.add(message);
+                notifyItemInserted(mMessages.indexOf(message));
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         int layoutId = R.layout.item_message_scheduled;
-        if (mType == Consts.MESSAGE_TYPE_RECENT) {
+        if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
             layoutId = R.layout.item_message_recent;
         }
         View view = inflater.inflate(layoutId, parent, false);
@@ -189,36 +218,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         Message message = mMessages.get(position);
 
-        List<Recipient> recipients = message.getRecipients();
-        if (recipients != null && !recipients.isEmpty()) {
-            String title = recipients.get(0).getName();
-            if (recipients.size() > 1) {
-                String extra = "+" + (recipients.size() - 1);
-                title = title + " " + extra;
-                holder.recipientNum.setText(extra);
-                holder.recipientNum.setVisibility(View.VISIBLE);
-                holder.hasExtraRecipient = true;
-            } else {
-                holder.recipientNum.setVisibility(View.INVISIBLE);
-                holder.hasExtraRecipient = false;
-            }
-            holder.recipient.setText(title);
-        } else {
-            recipients = new ArrayList<>();
-        }
+        holder.recipient.setText(message.getTitle());
+        holder.date.setText(HoooldUtils.toListDate(message.getScheduleDate()));
+        holder.message.setText(message.getMessage());
         if (message.isRepeat()) {
             holder.repeat.setVisibility(View.VISIBLE);
         }
-        holder.date.setText(HoooldUtils.toListDate(message.getScheduleDate()));
-        holder.message.setText(message.getMessage());
 
-        int color = mUnusedColors.get(0);
-        mUsedColors.add(color);
-        mUnusedColors.remove(0);
-
-        if (mUnusedColors.isEmpty()) {
-            mUnusedColors.addAll(mUsedColors);
-            mUsedColors.clear();
+        if (mCategory == Consts.MESSAGE_CATEGORY_SCHEDULED) {
+            setupScheduled(holder, message);
+        } else if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
+            setupRecent(holder, message);
         }
 
         if (message.isSelected()) {
@@ -235,11 +245,26 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             holder.selected = false;
         }
 
+        GradientDrawable gradient = (GradientDrawable) holder.iconReverse.getBackground();
+        gradient.setColor(mContext.getResources().getColor(Consts.SELECTED_ITEM_COLOR));
+    }
+
+    public void setupScheduled(ViewHolder holder, Message message) {
+        int recipCount = message.getRecipientCount();
+        if (recipCount >= 1) {
+            holder.recipientNum.setText("+" + recipCount);
+            holder.recipientNum.setVisibility(View.VISIBLE);
+            holder.hasExtraRecipient = true;
+        } else {
+            holder.recipientNum.setVisibility(View.INVISIBLE);
+            holder.hasExtraRecipient = false;
+        }
+
         GradientDrawable backgroundGradient = (GradientDrawable) holder.icon.getBackground();
-        backgroundGradient.setColor(color);
+        backgroundGradient.setColor(getIconColor());
 
         String url = "";
-        for (Recipient recipient : recipients) {
+        for (Recipient recipient : message.getRecipients()) {
             if (recipient.getPictureUrl() !=  null) {
                 url = recipient.getPictureUrl();
                 break;
@@ -255,6 +280,34 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         }
     }
 
+    public void setupRecent(ViewHolder holder, Message message) {
+        GradientDrawable gradient = (GradientDrawable) holder.icon.getBackground();
+        int colorId = R.color.md_green_700;
+        int iconId = R.drawable.ic_action_thumb_up;
+        if (message.getStatus() == Consts.MESSAGE_STATUS_FAILED) {
+            holder.status.setText("FAILED " + message.getErrorCode());
+            colorId = R.color.md_red_700;
+            iconId = R.drawable.ic_alert_error;
+        } else {
+            holder.status.setText("Success");
+        }
+        gradient.setColor(mContext.getResources().getColor(colorId));
+        holder.icon.setImageResource(iconId);
+
+    }
+
+    public int getIconColor() {
+        int color = mUnusedColors.get(0);
+        mUsedColors.add(color);
+        mUnusedColors.remove(0);
+
+        if (mUnusedColors.isEmpty()) {
+            mUnusedColors.addAll(mUsedColors);
+            mUsedColors.clear();
+        }
+        return color;
+    }
+
     @Override
     public int getItemCount() {
         return mMessages.size();
@@ -265,12 +318,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
 
         CardView layout;
         ImageView icon, iconReverse, repeat;
-        TextView recipient, date, message, recipientNum;
+        TextView recipient, date, message, recipientNum, status;
 
         IconAnimator animator;
 
         boolean hasExtraRecipient;
         boolean selected;
+        boolean isScheduled;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -281,17 +335,19 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
             date = (TextView) itemView.findViewById(R.id.date);
             message = (TextView) itemView.findViewById(R.id.message);
             recipientNum = (TextView) itemView.findViewById(R.id.recipient_num);
+            status = (TextView) itemView.findViewById(R.id.status);
 
-            if (mType == Consts.MESSAGE_TYPE_SCHEDULED) {
+            isScheduled = Consts.MESSAGE_CATEGORY_SCHEDULED == mCategory;
+
+            animator = new IconAnimator(mContext, icon, iconReverse);
+            if (isScheduled) {
                 layout = (CardView) itemView.findViewById(R.id.card);
                 layout.setOnClickListener(this);
+                animator.setListener(this);
             }
 
             icon.setOnClickListener(this);
             iconReverse.setOnClickListener(this);
-
-            animator = new IconAnimator(mContext, icon, iconReverse);
-            animator.setListener(this);
         }
 
         @Override
@@ -300,7 +356,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 case R.id.card:
                 case R.id.icon:
                 case R.id.icon_reverse:
-                    recipientNum.setVisibility(View.INVISIBLE);
+                    if (isScheduled) {
+                        recipientNum.setVisibility(View.INVISIBLE);
+                    }
                     animator.start(selected);
                     mMessages.get(getAdapterPosition()).setSelected(selected = !selected);
                     if (mListener != null) {

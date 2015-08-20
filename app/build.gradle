@@ -22,7 +22,7 @@ repositories {
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "23.0.0 rc3"
+    buildToolsVersion "23.0.0"
 
     defaultConfig {
         applicationId "ca.hoogit.hooold"
@@ -49,7 +49,7 @@ dependencies {
     compile 'de.psdev.licensesdialog:licensesdialog:1.7.0'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.afollestad:material-dialogs:0.7.6.0'
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.0@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.1@aar') {
         transitive = true;
     }
     compile 'com.github.satyan:sugar:1.4'

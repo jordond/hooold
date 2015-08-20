@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <item
+        android:id="@+id/action_clear"
+        android:title="@string/action_clear"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/action_delete"
         android:icon="@drawable/ic_action_delete"
         android:orderInCategory="1"
@@ -14,13 +19,6 @@
         android:icon="@drawable/ic_action_image_edit"
         android:orderInCategory="2"
         android:title="@string/action_edit"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/action_send_now"
-        android:icon="@drawable/ic_action_content_send"
-        android:orderInCategory="3"
-        android:title="@string/action_send_now"
         app:showAsAction="always" />
 
 </menu>

@@ -1,13 +1,16 @@
 package ca.hoogit.hooold.Main;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,15 +65,20 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
                     frag.reset();
                 }
                 return true;
+            case R.id.test:
+                Intent refresh = new Intent(Consts.INTENT_MESSAGE_REFRESH);
+                LocalBroadcastManager.getInstance(this).sendBroadcast(refresh);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setUpViews();
     }
 
@@ -97,12 +105,16 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
                 case Consts.RESULT_MESSAGE_EDIT:
                     Log.d(TAG, "Create activity has finished");
                     Message message = data.getParcelableExtra(Consts.KEY_MESSAGE);
-                    MessageFragment frag = currentPage();
+                    message.setId(data.getLongExtra(Consts.KEY_MESSAGE_ID, -1));
+                    MessageFragment frag = getPage(Consts.MESSAGE_CATEGORY_SCHEDULED);
                     if (frag != null) {
                         boolean isEdit = Consts.RESULT_MESSAGE_EDIT == requestCode;
                         if (isEdit) {
-                            message.setId(data.getLongExtra(Consts.KEY_MESSAGE_ID, -1));
                             frag.update(message);
+                            MessageFragment recents = getPage(Consts.MESSAGE_CATEGORY_RECENT);
+                            if (recents != null) {
+                                recents.update(message);
+                            }
                         } else {
                             frag.add(message);
                         }
@@ -115,9 +127,13 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
     }
 
     private MessageFragment currentPage() {
+        return getPage(mPager.getCurrentItem());
+    }
+
+    private MessageFragment getPage(int position) {
         Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" +
-                R.id.viewpager + ":" + mPager.getCurrentItem());
-        if (mPager.getCurrentItem() == 0 && page != null) {
+                R.id.viewpager + ":" + position);
+        if (page != null) {
             return (MessageFragment) page;
         }
         return null;
@@ -128,7 +144,7 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
     public void itemSelected(boolean isSelected) {
         int color = getResources().getColor(R.color.primary);
         if (isSelected) {
-            color = getResources().getColor(R.color.md_grey_500);
+            color = getResources().getColor(Consts.SELECTED_ITEM_COLOR);
         }
         getToolbar().setBackgroundColor(color);
         mTabs.setBackgroundColor(color);
