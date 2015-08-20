@@ -42,7 +42,7 @@ compile 'ca.hoogit:chips:1.0.6@aar'
 
 ##License
 
-Power Hour
+Hooold
 Copyright (C) 2015  Jordon de Hoog
 
 This program is free software; you can redistribute it and/or modify
