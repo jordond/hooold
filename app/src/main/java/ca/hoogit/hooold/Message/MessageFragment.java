@@ -55,6 +55,10 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 long id = intent.getLongExtra(Consts.KEY_MESSAGE_ID, -1L);
                 if (id != -1L) {
                     Log.i(TAG, "onReceive: Has ID attempting a move");
+                    if (mCategory == Consts.MESSAGE_CATEGORY_SCHEDULED) {
+                        Snackbar.make(mRecyclerView, "Message was sent",
+                                Snackbar.LENGTH_SHORT).show();
+                    }
                     mAdapter.move(id);
                 } else {
                     Log.i(TAG, "onReceive: Is a general refresh");

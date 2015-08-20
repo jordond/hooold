@@ -84,11 +84,11 @@ public class Sms implements Serializable {
     public void single(Context context, SmsManager manager, String recipient, int count) {
         Intent sent = generateIntent(Consts.INTENT_SMS_SENT, recipient, count);
         PendingIntent pendingSent = PendingIntent.getBroadcast(
-                context, (int) id, sent, PendingIntent.FLAG_UPDATE_CURRENT);
+                context, (int) id, sent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Intent delivered = generateIntent(Consts.INTENT_SMS_DELIVERED, recipient, count);
         PendingIntent pendingDelivered = PendingIntent.getBroadcast(
-                context, (int)id, delivered, PendingIntent.FLAG_UPDATE_CURRENT);
+                context, (int)id, delivered, PendingIntent.FLAG_CANCEL_CURRENT);
 
         manager.sendTextMessage(recipient, null, messageBody, pendingSent, pendingDelivered);
     }
@@ -123,7 +123,7 @@ public class Sms implements Serializable {
             intent.putExtra(Consts.KEY_SMS_PART, i);
 
             PendingIntent pending = PendingIntent.getBroadcast(
-                    context, (int) id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    context, (int) id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
             pendingIntents.add(pending);
         }
         return pendingIntents;
