@@ -123,10 +123,12 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
             recipients = Recipient.allRecipients(id);
         }
         for (Recipient entry : recipients) {
-            entry.setMessage(id);
-            entry.save();
+            if (entry.getMessageId() != this.getId()) {
+                entry.setMessage(id);
+                entry.save();
+            }
         }
-        return id;
+        return id; // TODO FIX UPDATING WHEN GOING FROM RECENT TO SCHEDULED
     }
 
     public long save(boolean saveRecipients) {
@@ -238,14 +240,13 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
     }
 
     public void setRecipients(List<Recipient> recipients) {
-        if (this.recipients != null) {
-            for (Recipient recipient : this.recipients) {
-                if (!recipients.contains(recipient)) {
-                    recipient.delete();
-                }
+        if (getId() != null) {
+            for (Recipient recipient : this.getRecipients()) {
+                recipient.delete();
             }
+            recipients = deDupe(recipients);
+            this.recipients.clear();
         }
-        recipients = deDupe(recipients);
         this.recipients = recipients;
     }
 

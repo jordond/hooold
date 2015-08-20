@@ -3,6 +3,7 @@ package ca.hoogit.hooold.Message;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import ca.hoogit.hooold.Utils.Consts;
@@ -73,7 +74,7 @@ public class MessageService extends IntentService {
     private void broadcast(long messageId) {
         Intent refresh = new Intent(Consts.INTENT_MESSAGE_REFRESH);
         refresh.putExtra(Consts.KEY_MESSAGE_ID, messageId);
-        getApplication().sendBroadcast(refresh);
-        Log.i(TAG, "Broadcasting update cat to all who will listen");
+        LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(refresh);
+        Log.i(TAG, "Broadcasting update to all who will listen");
     }
 }

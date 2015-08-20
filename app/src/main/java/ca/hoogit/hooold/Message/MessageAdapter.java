@@ -130,7 +130,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public int add(Message message) {
         int position = 0;
         if (message != null && message.getCategory() == mCategory) {
-            message.save();
             mMessages.add(message);
             position = mMessages.indexOf(message);
             notifyItemInserted(position);
@@ -142,6 +141,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         if (messages != null) {
             for (Message message : messages) {
                 add(message);
+                message.save();
             }
         }
     }
@@ -149,7 +149,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public int update(Message message) {
         int position = mMessages.find(message);
         if (position != -1) {
-            message.save();
             if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
                 mMessages.remove(position);
                 notifyItemRemoved(position);
@@ -158,7 +157,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 notifyItemChanged(mMessages.indexOf(message));
             }
         } else {
-            add(message);
+            if (mCategory == Consts.MESSAGE_CATEGORY_SCHEDULED) {
+                add(message);
+            }
         }
         return position;
     }

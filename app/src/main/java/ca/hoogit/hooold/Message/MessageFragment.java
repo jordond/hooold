@@ -51,7 +51,6 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     private BroadcastReceiver mMessageRefresh = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.v(TAG, "onReceive: Inside broadcast receiver");
             if (mAdapter != null) {
                 long id = intent.getLongExtra(Consts.KEY_MESSAGE_ID, -1L);
                 if (id != -1L) {
@@ -169,18 +168,25 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     @SuppressWarnings("ConstantConditions")
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        int menuId = R.menu.menu_scheduled_selected_multiple;
+        int menuId = R.menu.menu_blank;
         List<Message> selected = new ArrayList<>();
         if (mAdapter != null) {
             selected = mAdapter.getSelected();
         }
-        switch (selected.size()) {
-            case 0:
-                menuId = R.menu.menu_blank;
-                break;
-            case 1:
+        if (mCategory == Consts.MESSAGE_CATEGORY_SCHEDULED) {
+            if (selected.size() == 1) {
                 menuId = R.menu.menu_scheduled_selected_single;
-                break;
+            } else if (selected.size() > 1) {
+                menuId = R.menu.menu_scheduled_selected_multiple;
+            }
+        } else if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
+            if (selected.size() == 1) {
+                menuId = R.menu.menu_recent_selected_single;
+            } else if (selected.size() > 1) {
+                menuId = R.menu.menu_recent_selected_multiple;
+            } else {
+                menuId = R.menu.menu_recent_none;
+            }
         }
         mListener.itemSelected(selected.size() > 0);
         inflater.inflate(menuId, menu);
@@ -204,7 +210,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete:
-                delete();
+                delete(mAdapter.getSelected());
                 return true;
             case R.id.action_edit:
                 List<Message> selected = mAdapter.getSelected(); //TODO put at top?
@@ -220,6 +226,9 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 }
                 reset();
                 return true;
+            case R.id.action_clear:
+                delete(mAdapter.getList());
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -230,13 +239,15 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
         mListener.itemSelected(false);
     }
 
-    private void delete() {
-        final List<Message> selected = mAdapter.getSelected();
+    private void delete(final List<Message> messages) {
+        String content = getResources().getString(R.string.message_delete_content);
+        if (isRecents) {
+            content = getResources().getString(R.string.message_delete_content_recent);
+        }
         mDeletedMessages.clear();
         new MaterialDialog.Builder(getActivity())
                 .title(getResources().getString(R.string.message_delete_title))
-                .content(getResources().getString(R.string.message_delete_content)
-                        + " " + selected.size() + " messages will be deleted.")
+                .content(content + " " + messages.size() + " messages will be deleted.")
                 .positiveText(getResources().getString(R.string.message_delete_positive))
                 .negativeText(getResources().getString(R.string.message_delete_negative))
                 .autoDismiss(true)
@@ -244,8 +255,8 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         super.onPositive(dialog);
-                        mAdapter.delete(selected);
-                        mDeletedMessages.addAll(selected);
+                        mAdapter.delete(messages);
+                        mDeletedMessages.addAll(messages);
                         showDeleteSnackbar();
                         reset();
                     }

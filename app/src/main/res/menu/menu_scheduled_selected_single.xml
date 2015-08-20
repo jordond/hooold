@@ -22,4 +22,5 @@
         android:orderInCategory="3"
         android:title="@string/action_send_now"
         app:showAsAction="always" />
+
 </menu>

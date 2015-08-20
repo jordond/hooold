@@ -105,14 +105,16 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
                 case Consts.RESULT_MESSAGE_EDIT:
                     Log.d(TAG, "Create activity has finished");
                     Message message = data.getParcelableExtra(Consts.KEY_MESSAGE);
+                    message.setId(data.getLongExtra(Consts.KEY_MESSAGE_ID, -1));
                     MessageFragment frag = getPage(Consts.MESSAGE_CATEGORY_SCHEDULED);
                     if (frag != null) {
                         boolean isEdit = Consts.RESULT_MESSAGE_EDIT == requestCode;
                         if (isEdit) {
-                            long id = data.getLongExtra(Consts.KEY_MESSAGE_ID, -1);
-                            Intent refresh = new Intent(Consts.INTENT_MESSAGE_REFRESH);
-                            refresh.putExtra(Consts.KEY_MESSAGE_ID, id);
-                            LocalBroadcastManager.getInstance(this).sendBroadcast(refresh);
+                            frag.update(message);
+                            MessageFragment recents = getPage(Consts.MESSAGE_CATEGORY_RECENT);
+                            if (recents != null) {
+                                recents.update(message);
+                            }
                         } else {
                             frag.add(message);
                         }
