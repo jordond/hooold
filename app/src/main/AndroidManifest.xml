@@ -71,6 +71,12 @@
             android:name=".Message.MessageService"
             android:exported="false" >
         </service>
+
+        <receiver
+            android:name=".Scheduling.ScheduleReceiver"
+            android:enabled="true"
+            android:exported="false" >
+        </receiver>
     </application>
 
 </manifest>

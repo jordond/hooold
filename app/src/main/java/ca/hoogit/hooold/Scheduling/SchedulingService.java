@@ -22,6 +22,10 @@ public class SchedulingService extends IntentService {
         context.startService(intent);
     }
 
+    public static void startSendMessage(Context context, long id) {
+
+    }
+
     public SchedulingService() {
         super("SchedulingService");
     }
