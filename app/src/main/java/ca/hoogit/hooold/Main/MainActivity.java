@@ -112,9 +112,9 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
                         boolean isEdit = Consts.RESULT_MESSAGE_EDIT == requestCode;
                         if (isEdit) {
                             frag.update(message);
+                            SchedulingService.startUpdateMessage(this, message.toSms());
                             MessageFragment recents = getPage(Consts.MESSAGE_CATEGORY_RECENT);
                             if (recents != null) {
-                                SchedulingService.startUpdateMessage(this, message.toSms());
                                 recents.update(message);
                             }
                         } else {
