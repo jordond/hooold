@@ -21,7 +21,7 @@ public class ScheduleReceiver extends BroadcastReceiver {
                 Log.i(TAG, "No time like the present, alarm has been called, lets do it");
                 SchedulingService.startSendMessage(context, id);
             } else {
-                Log.e(TAG, "No ID was supplied in the intent");
+                Log.e(TAG, "No SMS id was supplied in the intent");
             }
         }
     }

@@ -77,13 +77,13 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
 
     public Sms toSms() {
         if (getRecipients().size() == 1) {
-            return new Sms(getId(), this.recipients.get(0).getPhone(), this.message);
+            return new Sms(getId(), recipients.get(0).getPhone(), message, scheduleDate);
         } else {
             List<String> phoneNumbs = new ArrayList<>();
             for (Recipient recipient : this.recipients) {
                 phoneNumbs.add(recipient.getPhone());
             }
-            return new Sms(getId(), phoneNumbs, this.message);
+            return new Sms(getId(), phoneNumbs, message, scheduleDate);
         }
     }
 

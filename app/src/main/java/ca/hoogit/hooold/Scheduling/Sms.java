@@ -26,6 +26,7 @@ import android.util.Log;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ca.hoogit.hooold.Main.MainActivity;
@@ -45,22 +46,25 @@ public class Sms implements Serializable {
     public long id;
     public List<String> recipients;
     public String messageBody;
+    public Date date;
 
-    public Sms(long id, String recipient, String messageBody) {
+    public Sms(long id, String recipient, String messageBody, Date date) {
         this.id = id;
         this.recipients = new ArrayList<>();
         this.recipients.add(recipient);
         this.messageBody = messageBody;
+        this.date = date;
         Log.d(TAG, "New SMS created with id of: " + this.id);
     }
 
-    public Sms(long id, List<String> recipients, String messageBody) {
+    public Sms(long id, List<String> recipients, String messageBody, Date date) {
         this.id = id;
         this.recipients = recipients;
         this.messageBody = messageBody;
         if (this.recipients == null) {
             this.recipients = new ArrayList<>();
         }
+        this.date = date;
         Log.d(TAG, "New SMS created with id of: " + this.id);
     }
 
