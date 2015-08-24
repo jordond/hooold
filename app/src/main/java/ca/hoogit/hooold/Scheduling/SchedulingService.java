@@ -9,6 +9,7 @@ import android.os.Build;
 import android.util.Log;
 
 import java.util.Calendar;
+import java.util.List;
 
 import ca.hoogit.hooold.Message.Message;
 import ca.hoogit.hooold.Utils.Consts;
@@ -21,6 +22,12 @@ public class SchedulingService extends IntentService {
         Intent intent = new Intent(context, SchedulingService.class);
         intent.setAction(Consts.ACTION_SCHEDULE_ADD);
         intent.putExtra(Consts.KEY_MESSAGE_SMS, sms);
+        context.startService(intent);
+    }
+
+    public static void startAddAll(Context context) {
+        Intent intent = new Intent(context, SchedulingService.class);
+        intent.setAction(Consts.ACTION_SCHEDULE_ALL);
         context.startService(intent);
     }
 
@@ -67,7 +74,10 @@ public class SchedulingService extends IntentService {
                         break;
                     case Consts.ACTION_SCHEDULE_SEND:
                         handleActionSend(sms);
+                        break;
                 }
+            } else if (action.equals(Consts.ACTION_SCHEDULE_ALL)) {
+                handleActionAll();
             } else {
                 Log.e(TAG, "No SMS object was supplied in the intent");
             }
@@ -88,6 +98,18 @@ public class SchedulingService extends IntentService {
                     .set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingAlarm);
         }
         Log.i(TAG, "Scheduling new SMS message with id of: " + sms.id);
+    }
+
+    private void handleActionAll() {
+        List<Message> messages = Message.all(Consts.MESSAGE_CATEGORY_SCHEDULED);
+        if (!messages.isEmpty()) {
+            Log.i(TAG, "Adding alarm for all scheduled messages");
+            for (Message message : messages) {
+                handleActionAdd(message.toSms());
+            }
+        } else {
+            Log.i(TAG, "No messages to schedule");
+        }
     }
 
     private void handleActionUpdate(Sms sms) {

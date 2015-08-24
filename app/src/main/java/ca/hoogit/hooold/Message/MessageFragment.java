@@ -114,8 +114,10 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState != null) {
-            ArrayList<Message> test = savedInstanceState.getParcelableArrayList(Consts.KEY_MESSAGES);
-            mMessages = (MessageList) test;
+            ArrayList<Message> messages = savedInstanceState.getParcelableArrayList(Consts.KEY_MESSAGES);
+            if (messages != null) {
+                mMessages.addAll(messages);
+            }
         }
     }
 

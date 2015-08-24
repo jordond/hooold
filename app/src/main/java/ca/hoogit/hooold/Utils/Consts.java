@@ -52,6 +52,7 @@ public class Consts {
      * Service Actions
      */
     public static final String ACTION_SCHEDULE_ADD = "ca.hoogit.hooold.Scheduling.action.ADD";
+    public static final String ACTION_SCHEDULE_ALL = "ca.hoogit.hooold.Scheduling.action.ALL";
     public static final String ACTION_SCHEDULE_UPDATE = "ca.hoogit.hooold.Scheduling.action.UPDATE";
     public static final String ACTION_SCHEDULE_DELETE = "ca.hoogit.hooold.Scheduling.action.DELETE";
     public static final String ACTION_SCHEDULE_SEND = "ca.hoogit.hooold.Scheduling.action.SEND";
