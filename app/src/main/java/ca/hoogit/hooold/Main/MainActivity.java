@@ -140,7 +140,7 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void itemSelected(boolean isSelected) {
+    public void itemSelected(boolean isSelected, int count) {
         int color = getResources().getColor(R.color.primary);
         if (isSelected) {
             color = getResources().getColor(Consts.SELECTED_ITEM_COLOR);
@@ -155,8 +155,10 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
         }
         if (isSelected) {
             mButton.setVisibility(View.INVISIBLE);
+            getToolbar().setTitle(count + " selected");
         } else {
             mButton.setVisibility(View.VISIBLE);
+            getToolbar().setTitle("");
         }
     }
 

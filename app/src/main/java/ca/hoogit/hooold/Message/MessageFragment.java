@@ -62,17 +62,10 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                                 Snackbar.LENGTH_SHORT).show();
                     }
                     mAdapter.move(id);
-                } else {
-                    Log.i(TAG, "onReceive: Is a general refresh");
-                    refresh();
                 }
             }
         }
     };
-
-    public void refresh() {
-        mAdapter.set(null);
-    }
 
     public static MessageFragment newInstance(int category) {
         MessageFragment fragment = new MessageFragment();
@@ -196,7 +189,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 menuId = R.menu.menu_recent_none;
             }
         }
-        mListener.itemSelected(selected.size() > 0);
+        mListener.itemSelected(selected.size() > 0, selected.size());
         inflater.inflate(menuId, menu);
     }
 
@@ -216,21 +209,20 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        List<Message> selected = mAdapter.getSelected();
         switch (item.getItemId()) {
             case R.id.action_delete:
-                delete(mAdapter.getSelected());
+                delete(selected);
                 return true;
             case R.id.action_edit:
-                List<Message> selected = mAdapter.getSelected(); //TODO put at top?
                 if (selected != null && selected.size() == 1) {
                     reset();
                     mListener.editItem(selected.get(0));
                 }
                 return true;
             case R.id.action_send_now:
-                List<Message> test = mAdapter.getSelected(); //TODO put at top?
-                for (Message t : test) {
-                    Sms sms = t.toSms();
+                for (Message m : selected) {
+                    Sms sms = m.toSms();
                     SchedulingService.startDeleteMessage(getContext(), sms);
                     sms.send(getActivity());
                 }
@@ -246,7 +238,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     public void reset() {
         mAdapter.unSelect();
         getActivity().invalidateOptionsMenu();
-        mListener.itemSelected(false);
+        mListener.itemSelected(false, 0);
     }
 
     private void delete(final List<Message> messages) {
@@ -265,8 +257,10 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         super.onPositive(dialog);
-                        for (Message message : messages) {
-                            SchedulingService.startDeleteMessage(getContext(), message.toSms());
+                        if (!isRecents) {
+                            for (Message message : messages) {
+                                SchedulingService.startDeleteMessage(getContext(), message.toSms());
+                            }
                         }
                         mAdapter.delete(messages);
                         mDeletedMessages.addAll(messages);
@@ -303,7 +297,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     }
 
     public interface IMessageInteraction {
-        void itemSelected(boolean isSelected);
+        void itemSelected(boolean isSelected, int count);
         void editItem(Message message);
     }
 }
