@@ -1,12 +1,10 @@
 package ca.hoogit.hooold.Scheduling;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import ca.hoogit.hooold.Message.MessageService;
 import ca.hoogit.hooold.Utils.Consts;
 
 public class ScheduleReceiver extends BroadcastReceiver {

@@ -18,7 +18,6 @@
 package ca.hoogit.hooold.Message;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
 
 import com.android.ex.chips.RecipientEntry;
 import com.android.ex.chips.recipientchip.DrawableRecipientChip;

@@ -21,7 +21,6 @@ import android.app.Application;
 
 import com.crashlytics.android.Crashlytics;
 import com.orm.SugarContext;
-import com.orm.SugarDb;
 
 import ca.hoogit.hooold.Scheduling.Alarming;
 import io.fabric.sdk.android.Fabric;

@@ -20,7 +20,6 @@ package ca.hoogit.hooold.Scheduling;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.telephony.SmsManager;
 import android.util.Log;
 
@@ -29,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import ca.hoogit.hooold.Main.MainActivity;
 import ca.hoogit.hooold.Utils.Consts;
 
 /**
