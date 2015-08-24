@@ -278,8 +278,8 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
 
     public void showDeleteSnackbar() {
         Snackbar.make(mRootView, mDeletedMessages.size() + " " + getString(
-                R.string.message_delete_snackbar_text), Snackbar.LENGTH_LONG).setAction(
-                getResources().getString(R.string.snackbar_undo),
+                R.string.message_delete_snackbar_text),
+                Snackbar.LENGTH_LONG).setAction(getResources().getString(R.string.snackbar_undo),
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

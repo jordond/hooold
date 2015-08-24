@@ -128,7 +128,7 @@ public class Message extends SugarRecord implements Parcelable, Comparable<Messa
                 entry.save();
             }
         }
-        return id; // TODO FIX UPDATING WHEN GOING FROM RECENT TO SCHEDULED
+        return id;
     }
 
     public long save(boolean saveRecipients) {

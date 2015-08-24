@@ -62,10 +62,6 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
                     frag.reset();
                 }
                 return true;
-            case R.id.test:
-                Intent refresh = new Intent(Consts.INTENT_MESSAGE_REFRESH);
-                LocalBroadcastManager.getInstance(this).sendBroadcast(refresh);
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
