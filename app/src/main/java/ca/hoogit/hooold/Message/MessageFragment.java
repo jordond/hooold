@@ -29,6 +29,8 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import ca.hoogit.hooold.R;
+import ca.hoogit.hooold.Scheduling.SchedulingService;
+import ca.hoogit.hooold.Scheduling.Sms;
 import ca.hoogit.hooold.Utils.Consts;
 import ca.hoogit.hooold.Views.EmptyRecyclerView;
 
@@ -112,8 +114,10 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState != null) {
-            ArrayList<Message> test = savedInstanceState.getParcelableArrayList(Consts.KEY_MESSAGES);
-            mMessages = (MessageList) test;
+            ArrayList<Message> messages = savedInstanceState.getParcelableArrayList(Consts.KEY_MESSAGES);
+            if (messages != null) {
+                mMessages.addAll(messages);
+            }
         }
     }
 
@@ -226,7 +230,9 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
             case R.id.action_send_now:
                 List<Message> test = mAdapter.getSelected(); //TODO put at top?
                 for (Message t : test) {
-                    t.toSms().send(getActivity());
+                    Sms sms = t.toSms();
+                    SchedulingService.startDeleteMessage(getContext(), sms);
+                    sms.send(getActivity());
                 }
                 reset();
                 return true;
@@ -259,6 +265,9 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         super.onPositive(dialog);
+                        for (Message message : messages) {
+                            SchedulingService.startDeleteMessage(getContext(), message.toSms());
+                        }
                         mAdapter.delete(messages);
                         mDeletedMessages.addAll(messages);
                         showDeleteSnackbar();
@@ -280,6 +289,9 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        for (Message message : mDeletedMessages) {
+                            SchedulingService.startAddMessage(getContext(), message.toSms());
+                        }
                         mAdapter.add(mDeletedMessages);
                     }
                 }).show();

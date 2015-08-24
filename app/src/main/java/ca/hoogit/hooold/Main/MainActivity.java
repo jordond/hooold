@@ -23,6 +23,7 @@ import ca.hoogit.hooold.Message.Message;
 import ca.hoogit.hooold.Message.MessageFragment;
 import ca.hoogit.hooold.R;
 import ca.hoogit.hooold.Scheduling.CreateActivity;
+import ca.hoogit.hooold.Scheduling.SchedulingService;
 import ca.hoogit.hooold.Utils.Consts;
 
 public class MainActivity extends BaseActivity implements MessageFragment.IMessageInteraction {
@@ -111,11 +112,13 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
                         boolean isEdit = Consts.RESULT_MESSAGE_EDIT == requestCode;
                         if (isEdit) {
                             frag.update(message);
+                            SchedulingService.startUpdateMessage(this, message.toSms());
                             MessageFragment recents = getPage(Consts.MESSAGE_CATEGORY_RECENT);
                             if (recents != null) {
                                 recents.update(message);
                             }
                         } else {
+                            SchedulingService.startAddMessage(this, message.toSms());
                             frag.add(message);
                         }
                     }

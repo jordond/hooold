@@ -15,36 +15,38 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-package ca.hoogit.hooold;
+package ca.hoogit.hooold.Scheduling;
 
-import android.app.Application;
-
-import com.crashlytics.android.Crashlytics;
-import com.orm.SugarContext;
-import com.orm.SugarDb;
-
-import ca.hoogit.hooold.Scheduling.Alarming;
-import io.fabric.sdk.android.Fabric;
+import android.app.AlarmManager;
+import android.content.Context;
 
 /**
  * @author jordon
  *
- * Date    11/08/15
+ * Date    21/08/15
  * Description
  *
  */
-public class HoooldApp extends Application {
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        Fabric.with(this, new Crashlytics());
-        SugarContext.init(this);
-        Alarming.getInstance().init(this);
+public class Alarming {
+    private static Alarming ourInstance = new Alarming();
+
+    public static Alarming getInstance() {
+        return ourInstance;
     }
 
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-        SugarContext.terminate();
+    private Context mContext;
+
+    private AlarmManager mManager;
+
+    private Alarming() {
+    }
+
+    public void init(Context context) {
+        this.mContext = context;
+        this.mManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    }
+
+    public AlarmManager manager() {
+        return this.mManager;
     }
 }
