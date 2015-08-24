@@ -16,12 +16,12 @@ public class ScheduleReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
-            long id = intent.getLongExtra(Consts.KEY_MESSAGE_ID, -1);
-            if (id != -1) {
+            Sms sms = (Sms) intent.getSerializableExtra(Consts.KEY_MESSAGE_SMS);
+            if (sms != null) {
                 Log.i(TAG, "No time like the present, alarm has been called, lets do it");
-                SchedulingService.startSendMessage(context, id);
+                SchedulingService.startSendMessage(context, sms);
             } else {
-                Log.e(TAG, "No SMS id was supplied in the intent");
+                Log.e(TAG, "No SMS object was supplied in the intent");
             }
         }
     }

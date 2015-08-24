@@ -177,7 +177,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         if (messages != null) {
             if (!messages.isEmpty()) {
                 for (Message message : messages) {
-                    delete(message);
+                    delete(message); //TODO fix java.util.ConcurrentModificationException
                 }
             }
         }

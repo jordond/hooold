@@ -38,10 +38,10 @@ public class SchedulingService extends IntentService {
         context.startService(intent);
     }
 
-    public static void startSendMessage(Context context, long id) {
+    public static void startSendMessage(Context context, Sms sms) {
         Intent intent = new Intent(context, SchedulingService.class);
         intent.setAction(Consts.ACTION_SCHEDULE_SEND);
-        intent.putExtra(Consts.KEY_MESSAGE_ID, id);
+        intent.putExtra(Consts.KEY_MESSAGE_SMS, sms);
         context.startService(intent);
     }
 
@@ -60,15 +60,14 @@ public class SchedulingService extends IntentService {
                         handleActionAdd(sms);
                         break;
                     case Consts.ACTION_SCHEDULE_UPDATE:
-
+                        handleActionUpdate(sms);
                         break;
                     case Consts.ACTION_SCHEDULE_DELETE:
                         handleActionDelete(sms);
                         break;
+                    case Consts.ACTION_SCHEDULE_SEND:
+                        handleActionSend(sms);
                 }
-            } else if (action.equals(Consts.ACTION_SCHEDULE_SEND)) {
-                final long id = intent.getLongExtra(Consts.KEY_MESSAGE_ID, -1);
-                handleActionSend(id);
             } else {
                 Log.e(TAG, "No SMS object was supplied in the intent");
             }
@@ -106,14 +105,9 @@ public class SchedulingService extends IntentService {
         Log.i(TAG, "Canceling the scheduled SMS message with id of: " + sms.id);
     }
 
-    private void handleActionSend(long id) {
-        Message message = Message.findById(Message.class, id);
-        if (message != null) {
-            message.toSms().send(getApplicationContext()); //TODO make sure other receiver detects and deletes message
-        } else {
-            Log.e(TAG, "Message with id of " + id + " could not be found");
-        }
-        Log.i(TAG, "Alarm has been met, time to send");
+    private void handleActionSend(Sms sms) {
+        sms.send(getApplicationContext());
+        Log.i(TAG, "Alarm has been met, time to send id: " + sms.id);
     }
 
     private PendingIntent getPendingIntent(Sms sms) {
