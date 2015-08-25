@@ -176,9 +176,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     public void delete(List<Message> messages) {
         if (messages != null) {
             if (!messages.isEmpty()) {
+                List<Message> toDelete = new ArrayList<>();
                 for (Message message : messages) {
-                    delete(message); //TODO fix java.util.ConcurrentModificationException
+                    int position = mMessages.indexOf(message);
+                    if (position != -1) {
+                        toDelete.add(message);
+                        message.delete();
+                        notifyItemRemoved(position);
+                    }
                 }
+                mMessages.removeAll(toDelete);
             }
         }
     }

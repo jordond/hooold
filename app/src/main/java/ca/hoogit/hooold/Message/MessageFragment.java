@@ -221,11 +221,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 }
                 return true;
             case R.id.action_send_now:
-                for (Message m : selected) {
-                    Sms sms = m.toSms();
-                    SchedulingService.startDeleteMessage(getContext(), sms);
-                    sms.send(getActivity());
-                }
+                sendNow(selected);
                 reset();
                 return true;
             case R.id.action_clear:
@@ -233,6 +229,32 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void sendNow(final List<Message> messages) {
+        new MaterialDialog.Builder(getActivity())
+                .title(getResources().getString(R.string.message_delete_title))
+                .content("Are you sure you wish to send the selected messages right away? " + messages.size() + " messages will be sent")
+                .positiveText(getResources().getString(R.string.message_delete_positive))
+                .negativeText(getResources().getString(R.string.message_delete_negative))
+                .autoDismiss(true)
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        super.onPositive(dialog);
+                        for (Message m : messages) {
+                            Sms sms = m.toSms();
+                            SchedulingService.startDeleteMessage(getContext(), sms);
+                            sms.send(getActivity());
+                        }
+                    }
+
+                    @Override
+                    public void onNegative(MaterialDialog dialog) {
+                        super.onNegative(dialog);
+                        dialog.dismiss();
+                    }
+                }).show();
     }
 
     public void reset() {
@@ -264,7 +286,7 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
                         }
                         mAdapter.delete(messages);
                         mDeletedMessages.addAll(messages);
-                        showDeleteSnackbar();
+                        if (!isRecents) showDeleteSnackbar();
                         reset();
                     }
 
