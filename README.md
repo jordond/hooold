@@ -11,6 +11,11 @@ Well that is a thing of the past with hooold.  Schedule future text messages so 
 
 ##Changelog
 ```
+Version 1.0
+ - Release to Play store
+ - Fixed several NPE
+ - Confirmation before sending messages before scheduled time
+ - Updated icon
 Version 0.1
  - Active development
  - Opening the source
