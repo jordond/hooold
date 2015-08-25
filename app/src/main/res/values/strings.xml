@@ -10,7 +10,7 @@
     <string name="message_delete_title">Are you sure?</string>
     <string name="message_delete_positive">Yes</string>
     <string name="message_delete_negative">No</string>
-    <string name="message_delete_snackbar_text">Message was deleted</string>
+    <string name="message_delete_snackbar_text">Message were deleted</string>
     <string name="snackbar_undo">UNDO</string>
 
     <string name="rate_the_app">Rate the app</string>

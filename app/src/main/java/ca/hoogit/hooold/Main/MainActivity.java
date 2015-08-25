@@ -154,7 +154,7 @@ public class MainActivity extends BaseActivity implements MessageFragment.IMessa
             getToolbar().setTitle(count + " selected");
         } else {
             mButton.setVisibility(View.VISIBLE);
-            getToolbar().setTitle("");
+            getToolbar().setTitle("Hooold");
         }
     }
 

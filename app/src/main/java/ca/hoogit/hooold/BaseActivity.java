@@ -43,6 +43,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         if (mToolbar != null) {
             mToolbar.setBackgroundColor(getToolbarColor());
+            mToolbar.setTitle("Hooold");
             setSupportActionBar(mToolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(getDisplayHomeAsUpEnabled());
         } else {
