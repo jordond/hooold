@@ -34,7 +34,7 @@ Version 0.1
 ##Get It
 [![PlayStore](https://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=ca.hoogit.hooold)
 
-Or grab the apk [here](assets/hooold.apk), or better yet download and build yourself.
+Or grab the apk [here](https://github.com/jordond/hooold/raw/master/assets/hooold.apk), or better yet download and build yourself.
 
 ##Permissions Breakdown
 - Internet - Used for the crash reporting analytics
