@@ -32,7 +32,9 @@ Version 0.1
 - Integrate Facebook capabilities
 
 ##Get It
-It is not yet published so just download the source and compile yourself.
+[![PlayStore](https://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=ca.hoogit.hooold)
+
+Or grab the apk [here](assets/hooold.apk), or better yet download and build yourself.
 
 ##Permissions Breakdown
 - Internet - Used for the crash reporting analytics
