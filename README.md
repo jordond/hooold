@@ -11,6 +11,11 @@ Well that is a thing of the past with hooold.  Schedule future text messages so 
 
 ##Changelog
 ```
+Version 1.0.1
+ - Bugfixes
+ - fix - capatilize sentances in create message's edittext
+ - Fix - filter out stale data in scheduled messages tab
+ - Fix - reduce targetsdk to 22 so new permissions dialogs aren't needed
 Version 1.0
  - Release to Play store
  - Fixed several NPE
