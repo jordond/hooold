@@ -58,6 +58,7 @@
         android:gravity="top"
         android:hint="Message"
         android:inputType="textMultiLine"
-        android:padding="@dimen/create_field_padding" />
+        android:padding="@dimen/create_field_padding"
+        android:capitalize="sentences" />
 
 </RelativeLayout>
