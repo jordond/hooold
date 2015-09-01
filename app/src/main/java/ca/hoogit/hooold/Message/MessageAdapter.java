@@ -31,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import ca.hoogit.hooold.R;
@@ -90,7 +91,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         if (messages == null || messages.isEmpty()) {
             mMessages = Message.all(mCategory);
         } else {
-            mMessages = messages;
+            mMessages.clear();
+            Calendar now = Calendar.getInstance();
+            for (Message m : messages) {
+                Calendar scheduledDate = Calendar.getInstance();
+                scheduledDate.setTime(m.getScheduleDate());
+                if (now.before(scheduledDate)) {
+                    mMessages.add(m);
+                }
+            }
         }
         if (getItemCount() != 0) {
             notifyDataSetChanged();

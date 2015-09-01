@@ -62,7 +62,7 @@ public class HoooldUtils {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
 
-        SimpleDateFormat f1 = new SimpleDateFormat("MMMM dd", Locale.getDefault());
+        SimpleDateFormat f1 = new SimpleDateFormat("MMMM d", Locale.getDefault());
         SimpleDateFormat f2 = new SimpleDateFormat("h:mm a", Locale.getDefault());
         String fancy = f1.format(date);
         fancy += getDaySuffix(cal.get(Calendar.DAY_OF_MONTH));
