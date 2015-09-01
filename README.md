@@ -11,6 +11,11 @@ Well that is a thing of the past with hooold.  Schedule future text messages so 
 
 ##Changelog
 ```
+Version 1.0
+ - Release to Play store
+ - Fixed several NPE
+ - Confirmation before sending messages before scheduled time
+ - Updated icon
 Version 0.1
  - Active development
  - Opening the source
@@ -27,7 +32,9 @@ Version 0.1
 - Integrate Facebook capabilities
 
 ##Get It
-It is not yet published so just download the source and compile yourself.
+[![PlayStore](https://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=ca.hoogit.hooold)
+
+Or grab the apk [here](https://github.com/jordond/hooold/raw/master/assets/hooold.apk), or better yet download and build yourself.
 
 ##Permissions Breakdown
 - Internet - Used for the crash reporting analytics
