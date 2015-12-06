@@ -88,16 +88,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
     }
 
     public boolean set(MessageList messages) {
-        if (messages == null || messages.isEmpty()) {
-            mMessages = Message.all(mCategory);
-        } else {
-            mMessages.clear();
-            Calendar now = Calendar.getInstance();
-            for (Message m : messages) {
-                Calendar scheduledDate = Calendar.getInstance();
-                scheduledDate.setTime(m.getScheduleDate());
-                if (now.before(scheduledDate)) {
-                    mMessages.add(m);
+        if (messages != null) {
+            if (messages.isEmpty()) {
+                mMessages = Message.all(mCategory);
+            } else {
+                Calendar now = Calendar.getInstance();
+                for (Message m : mMessages) {
+                    Calendar scheduledDate = Calendar.getInstance();
+                    scheduledDate.setTime(m.getScheduleDate());
+                    if (now.after(scheduledDate)) {
+                        mMessages.remove(m);
+                    }
                 }
             }
         }
@@ -140,8 +141,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         int position = 0;
         if (message != null && message.getCategory() == mCategory) {
             mMessages.add(message);
-            position = mMessages.indexOf(message);
-            notifyItemInserted(position);
+            notifyDataSetChanged();
         }
         return position;
     }
@@ -160,11 +160,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         if (position != -1) {
             if (mCategory == Consts.MESSAGE_CATEGORY_RECENT) {
                 mMessages.remove(position);
-                notifyItemRemoved(position);
-            } else {
-                message = mMessages.set(position, message, true);
-                notifyItemChanged(mMessages.indexOf(message));
             }
+            notifyDataSetChanged();
         } else {
             if (mCategory == Consts.MESSAGE_CATEGORY_SCHEDULED) {
                 add(message);
@@ -178,7 +175,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         if (position !=  -1) {
             message.delete();
             mMessages.remove(message);
-            notifyItemRemoved(position);
+            notifyDataSetChanged();
         }
     }
 
@@ -191,7 +188,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                     if (position != -1) {
                         toDelete.add(message);
                         message.delete();
-                        notifyItemRemoved(position);
+                        notifyDataSetChanged();
                     }
                 }
                 mMessages.removeAll(toDelete);
@@ -204,14 +201,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
         if (position != -1) {
             Log.d(TAG, "move: Removing at position: " + position);
             mMessages.remove(position);
-            notifyItemRemoved(position);
+            notifyDataSetChanged();
             return true;
         } else {
             Message message = Message.findById(Message.class, messageId);
             if (message != null && message.getCategory() == mCategory) {
                 Log.d(TAG, "move: Adding message to list");
                 mMessages.add(message);
-                notifyItemInserted(mMessages.indexOf(message));
+                notifyDataSetChanged();
                 return true;
             }
         }

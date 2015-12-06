@@ -55,7 +55,7 @@ public class MessageList extends ArrayList<Message> {
 
     public void sort() {
         Collections.sort(this);
-        //Collections.reverse(this);
+        Collections.reverse(this);
     }
 
     public void sort(boolean ascending) {
