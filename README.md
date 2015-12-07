@@ -1,8 +1,8 @@
 <img src="https://raw.githubusercontent.com/jordond/hooold/master/assets/hooold_banner.png" width="500">
 
-Master [![Build Status](https://ci.hoogit.ca/job/production.Hooold/badge/icon)](https://ci.hoogit.ca/job/production.Hooold/)
+Master [![Build Status](https://ci.hoogit.ca/job/Hooold.master/badge/icon)](https://ci.hoogit.ca/job/Hooold.master/)
 
-Develop [![Build Status](https://ci.hoogit.ca/job/staging.Hooold/badge/icon)](https://ci.hoogit.ca/job/staging.Hooold/)
+Develop [![Build Status](https://ci.hoogit.ca/job/Hooold.develop/badge/icon)](https://ci.hoogit.ca/job/Hooold.develop/)
 
 A SMS scheduling app for android.  Ever needed to send a message at a later time and always relied on yourself remembering?
 Well that is a thing of the past with hooold.  Schedule future text messages so that you never miss an anniversary or birthday ever again.
@@ -48,7 +48,7 @@ Version 0.1
 ##Get It
 [![PlayStore](https://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=ca.hoogit.hooold)
 
-Or grab the apk [here](https://ci.hoogit.ca/job/production.Hooold), or better yet download and build yourself.
+Or grab the apk [here](https://ci.hoogit.ca/job/Hooold.master), or better yet download and build yourself.
 
 ##Permissions Breakdown
 - Internet - Used for the crash reporting analytics
