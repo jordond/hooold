@@ -15,6 +15,12 @@ Well that is a thing of the past with hooold.  Schedule future text messages so 
 
 ##Changelog
 ```
+Version 1.1.2
+ - Bug fixes
+ - Fixed messages disappearing on screen rotate
+ - Fixed crash from not being able to get the default sms manager
+ - Fixed crash on CreateMessage when trying to close keyboard
+ - Added new permission as a workaround for the default sms manager bug
 Version 1.1.0
  - Bugfixes
  - Fixed messages not showing up after they were added or expired
@@ -22,7 +28,7 @@ Version 1.1.0
  - Moved building to Jenkins
 Version 1.0.1
  - Bugfixes
- - fix - capatilize sentances in create message's edittext
+ - fix - capitalize sentences in create message's edittext
  - Fix - filter out stale data in scheduled messages tab
  - Fix - reduce targetsdk to 22 so new permissions dialogs aren't needed
 Version 1.0
@@ -54,6 +60,7 @@ Or grab the apk [here](https://ci.hoogit.ca/job/Hooold.master), or better yet do
 - Internet - Used for the crash reporting analytics
 - Read Contacts - Used to choose recipients for the message
 - Send SMS - Fairly obvious, send the scheduled messages
+- Read Phone State - A workaround for affected Samsung phones for grabbing SMSManager
 
 ##Libraries used
 ```groovy
