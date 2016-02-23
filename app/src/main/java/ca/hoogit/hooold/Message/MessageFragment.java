@@ -96,9 +96,9 @@ public class MessageFragment extends Fragment implements MessageAdapter.OnCardAc
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (mAdapter != null) {
-            if (mMessages != null && mMessages.isEmpty()) {
+//            if (mMessages != null && mMessages.isEmpty()) {
                 mMessages = mAdapter.getList();
-            }
+//            }
         }
         outState.putParcelableArrayList(Consts.KEY_MESSAGES, mMessages);
     }

@@ -107,7 +107,7 @@ public class CreateActivity extends BaseActivity
             inputMethodManager.hideSoftInputFromWindow(
                     getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         } catch (NullPointerException ex) {
-            Log.e(TAG, ex.getMessage());
+            Log.e(TAG, "Unable to get the window token");
         }
     }
 
@@ -154,7 +154,10 @@ public class CreateActivity extends BaseActivity
         String mAction = getIntent().getAction();
         getToolbar().setTitle(mAction + getString(R.string.activity_create_title_suffix));
 
-        boolean isEdit = mAction.equals(Consts.MESSAGE_EDIT);
+        boolean isEdit = false;
+        if (mAction != null) {
+            isEdit = mAction.equals(Consts.MESSAGE_EDIT);
+        }
 
         mContact.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
         BaseRecipientAdapter adapter = new BaseRecipientAdapter(

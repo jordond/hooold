@@ -29,4 +29,5 @@
     <string name="action_delete_message">Delete Message</string>
     <string name="action_edit">Edit</string>
     <string name="action_clear">Clear All</string>
+    <string name="error_sms_manager_default">Unable to send SMS, check to make sure you have given this device the correct permissions</string>
 </resources>

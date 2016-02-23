@@ -93,11 +93,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                 mMessages = Message.all(mCategory);
             } else {
                 Calendar now = Calendar.getInstance();
-                for (Message m : mMessages) {
+                for (Message m : messages) {
                     Calendar scheduledDate = Calendar.getInstance();
                     scheduledDate.setTime(m.getScheduleDate());
-                    if (now.after(scheduledDate)) {
-                        mMessages.remove(m);
+                    if (now.before(scheduledDate)) {
+                        mMessages.add(m);
                     }
                 }
             }
@@ -373,9 +373,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHold
                         recipientNum.setVisibility(View.INVISIBLE);
                     }
                     animator.start(selected);
-                    mMessages.get(getAdapterPosition()).setSelected(selected = !selected);
-                    if (mListener != null) {
-                        mListener.cardSelected(v, mMessages.get(getAdapterPosition()));
+                    if (mMessages.size() > 0) {
+                        mMessages.get(getAdapterPosition()).setSelected(selected = !selected);
+                        if (mListener != null) {
+                            mListener.cardSelected(v, mMessages.get(getAdapterPosition()));
+                        }
                     }
                     break;
             }

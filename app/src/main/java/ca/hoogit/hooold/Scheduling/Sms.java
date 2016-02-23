@@ -20,22 +20,24 @@ package ca.hoogit.hooold.Scheduling;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.SmsManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import ca.hoogit.hooold.R;
 import ca.hoogit.hooold.Utils.Consts;
 
 /**
  * @author jordon
- *
- * Date    17/08/15
- * Description
- *
+ *         <p/>
+ *         Date    17/08/15
+ *         Description
  */
 public class Sms implements Serializable {
 
@@ -70,7 +72,10 @@ public class Sms implements Serializable {
         int count = 1;
         SmsManager manager = SmsManager.getDefault();
         for (String recipient : this.recipients) {
-            if (messageBody.length() <= Consts.MAX_SMS_LENGTH) {
+            if (manager == null) {
+                Intent error = generateIntent(Consts.INTENT_SMS_SENT, recipient, count);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(error);
+            } else if (messageBody.length() <= Consts.MAX_SMS_LENGTH) {
                 Log.i(TAG, "Message will be sent as single");
                 single(context, manager, recipient, count);
             } else {
@@ -80,7 +85,12 @@ public class Sms implements Serializable {
             Log.d(TAG, "Sending message to: " + recipient);
             count++;
         }
-        Log.i(TAG, "Message sent to " + this.recipients.size() + " recipients");
+        if (manager != null) {
+            Log.i(TAG, "Message sent to " + this.recipients.size() + " recipients");
+        } else {
+            Toast.makeText(context, R.string.error_sms_manager_default, Toast.LENGTH_LONG).show();
+            Log.e(TAG, "send: Could not get default sms manager");
+        }
     }
 
     public void single(Context context, SmsManager manager, String recipient, int count) {
@@ -90,7 +100,7 @@ public class Sms implements Serializable {
 
         Intent delivered = generateIntent(Consts.INTENT_SMS_DELIVERED, recipient, count);
         PendingIntent pendingDelivered = PendingIntent.getBroadcast(
-                context, (int)id, delivered, PendingIntent.FLAG_CANCEL_CURRENT);
+                context, (int) id, delivered, PendingIntent.FLAG_CANCEL_CURRENT);
 
         manager.sendTextMessage(recipient, null, messageBody, pendingSent, pendingDelivered);
     }
